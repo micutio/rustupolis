@@ -32,4 +32,4 @@ The tuple space is being implemented iteratively, where each iteration improves 
 Current Version
 ---------------
 
-pre-alpha 0.1
+pre-alpha 0.0.1
