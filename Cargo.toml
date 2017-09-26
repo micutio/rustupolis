@@ -1,0 +1,19 @@
+[package]
+name = "rustupolis"
+version = "0.1.0"
+authors = ["Michael Wagner <wagner.mchl@googlemail.com>"]
+readme = "README.md"
+
+[lib]
+name = "rustupolis"
+path = "src/lib.rs"
+
+[[example]]
+name = "hello_world"
+path = "examples/hello_world/main.rs"
+
+[[test]]
+name = "test"
+path = "tests/startup.rs"
+
+[dependencies]
