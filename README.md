@@ -10,9 +10,9 @@ that fulfills the following criteria:
 
 1. General Use - the implementation should support the use of any kind of data the user wishes.
 
-2. Distributed - the tuple space should be able to run locally and remotely
+2. Distributed - the tuple space should be able to run locally and remotely on one more more nodes.
 
-3. Parallelized - the most __core__ value, the tuple space should be accessible concurrently
+3. Parallelized - the __core__ value, the tuple space should be accessible concurrently
 
 Development
 -----------
@@ -32,4 +32,4 @@ The tuple space is being implemented iteratively, where each iteration improves 
 Current Version
 ---------------
 
-none
+pre-alpha 0.1
