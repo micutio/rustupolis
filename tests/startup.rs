@@ -1,8 +1,11 @@
 extern crate rustupolis;
 
+#[macro_use]
+extern crate log;
+
 #[test]
 fn test_start() {
-    println!("testing startup");
+    info!("testing startup");
 }
 
 

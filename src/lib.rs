@@ -6,6 +6,10 @@
 //!
 //! This Library does ...
 
+#[macro_use]
+extern crate log;
+
+
 // Publicly accessible modules
 pub mod tuplespace;
 pub mod tuple;
