@@ -6,11 +6,11 @@
 /// Not using a reference to string because we want ownership of id.
 #[derive(PartialEq, Eq, Hash)]
 pub struct Tuple {
-   id: String,
+   pub id: String,
 }
 
 impl Tuple {
-    
+
     /// Create a tuple.
     pub fn new<S>(id: S) -> Tuple where S : Into<String>{
         Tuple { id: id.into() }
