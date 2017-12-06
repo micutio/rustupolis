@@ -13,8 +13,12 @@ name = "hello_world"
 path = "examples/hello_world/main.rs"
 
 [[test]]
-name = "test"
+name = "startup_test"
 path = "tests/startup.rs"
+
+[[test]]
+name = "basic_functions_test"
+path = "tests/basic_functions.rs"
 
 [dependencies]
 log = "0.3.8"
