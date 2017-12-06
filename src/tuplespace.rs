@@ -5,7 +5,7 @@
 use tuple::Tuple;
 use std::collections::HashSet;
 
-struct TupleSpace {
+pub struct TupleSpace {
     // Naive implementation for now: keep all tuples in a set.
     data : HashSet<Tuple>,
 }
