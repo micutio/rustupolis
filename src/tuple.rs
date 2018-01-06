@@ -2,7 +2,6 @@
 //!
 //! Tuple is the basis for everything that can be put into the tuple space.
 
-//#[derive(PartialEq)]
 pub enum E {
     I(i32),
     D(f64),
@@ -11,6 +10,7 @@ pub enum E {
     None,
 }
 
+/// Allow tuples to be equal to identical tuples with wildcards.
 impl PartialEq for E {
     fn eq(&self, other: &E) -> bool {
         match (self, other) {
@@ -36,14 +36,14 @@ impl PartialEq for E {
 /// - generic number of fiels of generic types
 #[derive(PartialEq)]
 pub struct Tuple {
-   pub content: E,
+   pub content: Vec<E>,
    pub lifetime: u64,
 }
 
 impl Tuple {
 
     /// Create a tuple.
-    pub fn new(ct: E, lt: u64) -> Tuple {
+    pub fn new(ct: Vec<E>, lt: u64) -> Tuple {
         Tuple { content: ct, lifetime: lt }
     }
 

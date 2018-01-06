@@ -20,11 +20,29 @@ impl TupleSpace {
         self.data.push(tup);
     }
 
+    pub fn read(&self, tup: Tuple) -> Option<Tuple> {
+        trace!("[TupleSpace] reading tuple from space");
+
+        let mut index = self.data.len();
+        for i in 0..self.data.len() {
+            if tup.content == self.data[i].content {
+                index = i;
+                break;
+            }
+        }
+
+        if index < self.data.len() {
+            Some(tup)
+        } else {
+            None
+        }
+    }
+
     pub fn take(&mut self, tup: Tuple) -> Option<Tuple> {
         trace!("[TupleSpace] taking tuple from space");
         let mut index = self.data.len();
         for i in 0..self.data.len() {
-            if tup == self.data[i] {
+            if tup.content == self.data[i].content {
                 index = i;
                 break;
             }
@@ -38,22 +56,7 @@ impl TupleSpace {
         }
     }
 
-    pub fn read(&self, tup: Tuple) -> Option<Tuple> {
-        trace!("[TupleSpace] reading tuple from space");
-
-        let mut index = self.data.len();
-        for i in 0..self.data.len() {
-            if tup == self.data[i] {
-                index = i;
-                break;
-            }
-        }
-
-        if index < self.data.len() {
-            Some(tup)
-        } else {
-            None
-        }
+    pub fn len(&self) -> usize {
+        self.data.len()
     }
-
 }
