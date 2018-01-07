@@ -2,8 +2,7 @@
 
 An easy to use tuple space library written entirely in Rust.
 
-Goals
------
+## Goals
 
 The goal of this project is to implement a comprehensive tuple space library
 that fulfills the following criteria:
@@ -14,8 +13,7 @@ that fulfills the following criteria:
 
 3. Parallelized - the __core__ value, the tuple space should be accessible concurrently
 
-Development
------------
+## Development
 
 The tuple space is being implemented iteratively, where each iteration improves upon the previous by adding or refining features to achieve the next milestone.
 
@@ -31,7 +29,6 @@ The tuple space is being implemented iteratively, where each iteration improves 
 
 5. 'Space of spaces', tuples can be tuple spaces themselves
 
-Current Version
----------------
+## Current Version
 
 alpha 0.0.1
