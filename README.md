@@ -17,9 +17,11 @@ that fulfills the following criteria:
 Development
 -----------
 
-The tuple space is being implemented iteratively, where each iteration improves upon the previous by adding or refining features to achieve the next milestone. The planned milestones are:
+The tuple space is being implemented iteratively, where each iteration improves upon the previous by adding or refining features to achieve the next milestone.
 
-1. Local tuple space for storing tupels and retrieving them via pattern matching
+## Milestones
+
+1. Local tuple space for storing tuples and retrieving them via pattern matching
 
 2. Local tuple space with multi-threaded and concurrent access
 
@@ -32,4 +34,4 @@ The tuple space is being implemented iteratively, where each iteration improves 
 Current Version
 ---------------
 
-pre-alpha 0.0.1
+alpha 0.0.1
