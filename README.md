@@ -1,4 +1,4 @@
-# rustupolis - Tuple Space for Rust
+# rustupolis - Tuple Space for Rust [<img src="https://travis-ci.org/Micutio/rustupolis.svg?branch=master">](https://travis-ci.org/Micutio/rustupolis)
 
 An easy to use tuple space library written entirely in Rust.
 
