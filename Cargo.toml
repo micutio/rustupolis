@@ -2,11 +2,25 @@
 name = "rustupolis"
 version = "0.0.1"
 authors = ["Michael Wagner <wagner.mchl@googlemail.com>"]
+description = "An implementation of the tuple space data structure in Rust."
+repository = "https://github.com/micutio/rustupolis"
 readme = "README.md"
+# Up to five keywords.
+keywords = ["tuple space", "concurrent", "distributed", "decentralized"]
+license = "MIT License"
+
+[badges]
+travis-ci = { repository = "https://travis-ci.org/Micutio/rustupolis", branch = "master" }
 
 [lib]
 name = "rustupolis"
 path = "src/lib.rs"
+test = true
+doctest = true
+
+[dependencies]
+log = "0.3.8"
+clap = "2"
 
 [[example]]
 name = "hello_world"
@@ -19,7 +33,3 @@ path = "tests/startup.rs"
 [[test]]
 name = "basic_functions_test"
 path = "tests/basic_functions.rs"
-
-[dependencies]
-log = "0.3.8"
-clap = "2"
