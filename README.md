@@ -19,7 +19,7 @@ Development
 
 The tuple space is being implemented iteratively, where each iteration improves upon the previous by adding or refining features to achieve the next milestone.
 
-## Milestones
+### Milestones
 
 1. Local tuple space for storing tuples and retrieving them via pattern matching
 
