@@ -29,11 +29,6 @@ pub enum E {
 
 impl E {
 	/// Prints an element to the standard output
-	/// # Examples
-	///
-	/// ```
-	/// # e.print()
-	/// ```
 	pub fn print(&self) {
 		match self {
 			&E::I(ref i) => print!("Int: {}, ", i),
@@ -45,7 +40,6 @@ impl E {
 					e.print();
 				}
 				print!("], ");
-
 			}
 			&E::None => println!("Wildcard"),
 		}
