@@ -3,6 +3,7 @@
 //! Tuple is the basis for everything that can be put into the tuple space.
 
 /// Enum, which is used to represent the tuple elements.
+#[derive(Clone)]
 pub enum E {
     /// Integer data type.
     ///
@@ -70,7 +71,7 @@ impl PartialEq for E {
 /// - identifier
 /// - lifetime
 /// - generic number of fiels of generic types
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct Tuple {
    pub content: Vec<E>,
    pub lifetime: u64,
