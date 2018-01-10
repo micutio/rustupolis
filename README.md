@@ -13,7 +13,8 @@ that fulfills the following criteria:
 
 ## Development
 
-The tuple space is being implemented iteratively, where each iteration improves upon the previous by adding or refining features to achieve the next milestone.
+The tuple space is being implemented iteratively, where each iteration improves
+upon the previous by adding or refining features to achieve the next milestone.
 
 ### Milestones
 
