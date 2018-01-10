@@ -32,7 +32,8 @@ impl TupleSpace {
         }
 
         if index < self.data.len() {
-            Some(tup)
+            let return_tup = self.data[index].clone();
+            Some(return_tup)
         } else {
             None
         }
@@ -49,8 +50,8 @@ impl TupleSpace {
         }
 
         if index < self.data.len() {
-            self.data.remove(index);
-            Some(tup)
+            let return_tup = self.data.remove(index);
+            Some(return_tup)
         } else {
             None
         }
