@@ -21,10 +21,15 @@ doctest = true
 [dependencies]
 log = "0.3.8"
 clap = "2"
+rand = "0.4"
 
 [[example]]
 name = "hello_world"
 path = "examples/hello_world/main.rs"
+
+[[example]]
+name = "single_threaded"
+path = "examples/single_threaded/main.rs"
 
 [[test]]
 name = "startup_test"
