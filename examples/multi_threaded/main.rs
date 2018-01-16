@@ -1,34 +1,61 @@
 extern crate rustupolis;
+extern crate rand;
 
 use rustupolis::tuple::E;
 use rustupolis::tuple::Tuple;
 use rustupolis::tuplespace::TupleSpace;
 
+use rand::{Rng, Isaac64Rng, SeedableRng};
+
+use std::thread;
+
+fn put_and_read(mut rng: Isaac64Rng, id: String, t_space: &TupleSpace) {
+
+    for _i in 0..5 {
+        println!("pushing tuple");
+        let mut strg = "tuple from ".to_string();
+        strg.push_str(&id);
+        let int = rng.gen::<i32>();
+        let dbl = rng.gen::<f64>();
+        let tup = Tuple::new(vec!(E::S(strg), E::I(int), E::D(dbl), E::S("more content...".to_string())), 99999);
+        // tup.print();
+        println!("{:?}", tup);
+        &mut t_space.put(tup);
+    }
+
+    for _i in 0..5 {
+        println!("reading tuple");
+        let tup = t_space.read(Tuple::new(vec!(E::None, E::None, E::None, E::None), 0));
+        println!("{:?}", tup);
+    }
+
+}
+
 fn main() {
+
+    // let mut rng = match OsRng::new() {
+    //     Ok(g) => g,
+    //     Err(e) => panic!("Failed to obtain OS RNG: {}", e)
+    // };
+
+    let seed: &[_] = &[1, 2, 3, 4];
+    let mut rng = rand::Isaac64Rng::new_unseeded();
+    rng.reseed(seed);
 
     println!("rustupolis - hello world example");
     let mut t_space = TupleSpace::new();
-    println!("creating space and putting three new tuples into it");
-    let tup1 = Tuple::new(vec!(E::S("Hello".to_string()), E::S("World!".to_string())), 86567);
-    let tup2 = Tuple::new(vec!(E::D(3.14), E::S("bar".to_string()), E::S("foo".to_string())), 12390);
-    let tup3 = Tuple::new(vec!(E::S("baz".to_string()), E::D(1.14), E::D(2.14), E::D(3.14)), 12390);
 
-    t_space.put(tup1);
-    t_space.put(tup2);
-    t_space.put(tup3);
+    let handle_a = thread::spawn(move|| {
+        put_and_read(rng, "a".to_string(), &t_space)
+    });
 
-    println!("taking out a tuple that matches the pattern (None, None)");
-    let tup4 = t_space.take(Tuple::new(vec!(E::None, E::None), 0));
+    // let handle_b = thread::spawn(|| {
+    //     put_and_read(rng, "b".to_string(), &t_space)
+    // });
 
-    println!("printing tuple contents:");
-    match tup4 {
-        Some(x) => {
-            for elem in x.content {
-                elem.print();
-            }
-        },
-        None => assert!(false)
-    }
+    handle_a.join();
+    // handle_b.join();
+
     println!();
     println!();
 
