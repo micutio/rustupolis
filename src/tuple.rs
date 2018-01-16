@@ -84,4 +84,10 @@ impl Tuple {
         Tuple { content: ct, lifetime: lt }
     }
 
+    // pub fn print(&self) {
+    //     for elem in self.content {
+    //         elem.print();
+    //     }
+    // }
+
 }

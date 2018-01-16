@@ -8,6 +8,7 @@
 
 #[macro_use]
 extern crate log;
+extern crate rand;
 
 
 // Publicly accessible modules
