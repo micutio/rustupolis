@@ -7,13 +7,21 @@ use rustupolis::tuplespace::TupleSpace;
 
 use rand::{Rng, Isaac64Rng, SeedableRng};
 
-fn put_and_read(mut rng: Isaac64Rng, mut t_space : TupleSpace) {
+fn put_and_read(mut rng: Isaac64Rng, mut t_space: TupleSpace) {
 
     for _i in 0..5 {
         println!("pushing tuple");
         let int = rng.gen::<i32>();
         let dbl = rng.gen::<f64>();
-        let tup = Tuple::new(vec!(E::S("tuple".to_string()), E::I(int), E::D(dbl), E::S("more content...".to_string())), 99999);
+        let tup = Tuple::new(
+            vec![
+                E::S("tuple".to_string()),
+                E::I(int),
+                E::D(dbl),
+                E::S("more content...".to_string()),
+            ],
+            99999,
+        );
         // tup.print();
         println!("{:?}", tup);
         t_space.put(tup);
@@ -21,7 +29,7 @@ fn put_and_read(mut rng: Isaac64Rng, mut t_space : TupleSpace) {
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_space.read(Tuple::new(vec!(E::None, E::None, E::None, E::None), 0));
+        let tup = t_space.read(Tuple::new(vec![E::None, E::None, E::None, E::None], 0));
         println!("{:?}", tup);
     }
 

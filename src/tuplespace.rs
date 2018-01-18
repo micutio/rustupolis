@@ -6,13 +6,12 @@ use tuple::Tuple;
 
 pub struct TupleSpace {
     // Naive implementation for now: keep all tuples in a set.
-    data : Vec<Tuple>,
+    data: Vec<Tuple>,
 }
 
 impl TupleSpace {
-
     pub fn new() -> TupleSpace {
-        TupleSpace { data: Vec::new(), }
+        TupleSpace { data: Vec::new() }
     }
 
     pub fn put(&mut self, tup: Tuple) {

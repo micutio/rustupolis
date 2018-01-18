@@ -17,7 +17,15 @@ fn put_and_read(mut rng: Isaac64Rng, id: String, t_space: &TupleSpace) {
         strg.push_str(&id);
         let int = rng.gen::<i32>();
         let dbl = rng.gen::<f64>();
-        let tup = Tuple::new(vec!(E::S(strg), E::I(int), E::D(dbl), E::S("more content...".to_string())), 99999);
+        let tup = Tuple::new(
+            vec![
+                E::S(strg),
+                E::I(int),
+                E::D(dbl),
+                E::S("more content...".to_string()),
+            ],
+            99999,
+        );
         // tup.print();
         println!("{:?}", tup);
         &mut t_space.put(tup);
@@ -25,7 +33,7 @@ fn put_and_read(mut rng: Isaac64Rng, id: String, t_space: &TupleSpace) {
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_space.read(Tuple::new(vec!(E::None, E::None, E::None, E::None), 0));
+        let tup = t_space.read(Tuple::new(vec![E::None, E::None, E::None, E::None], 0));
         println!("{:?}", tup);
     }
 
@@ -45,9 +53,7 @@ fn main() {
     println!("rustupolis - hello world example");
     let mut t_space = TupleSpace::new();
 
-    let handle_a = thread::spawn(move|| {
-        put_and_read(rng, "a".to_string(), &t_space)
-    });
+    let handle_a = thread::spawn(move || put_and_read(rng, "a".to_string(), &t_space));
 
     // let handle_b = thread::spawn(|| {
     //     put_and_read(rng, "b".to_string(), &t_space)
