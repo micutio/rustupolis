@@ -13,7 +13,7 @@ fn test_put() {
     let mut t_space = TupleSpace::new();
     let content = E::S("test content".to_string());
     let lifetime = 387465;
-    let tup = Tuple::new(vec!(content), lifetime);
+    let tup = Tuple::new(vec![content], lifetime);
 
     t_space.put(tup);
 }
@@ -22,16 +22,16 @@ fn test_put() {
 fn test_read() {
     info!{"testing basic tuplespace function read()"}
     let mut t_space = TupleSpace::new();
-    let tup1 = Tuple::new(vec!(E::D(3.14), E::I(123)), 86567);
-    let tup2 = Tuple::new(vec!(E::D(3.14), E::None), 12390);
-    let tup3 = Tuple::new(vec!(E::D(3.14), E::None), 12390);
+    let tup1 = Tuple::new(vec![E::D(3.14), E::I(123)], 86567);
+    let tup2 = Tuple::new(vec![E::D(3.14), E::None], 12390);
+    let tup3 = Tuple::new(vec![E::D(3.14), E::None], 12390);
 
     t_space.put(tup1);
     let tup4 = t_space.read(tup2);
 
     match tup4 {
         Some(x) => assert!(tup3.content == x.content),
-        None => assert!(false)
+        None => assert!(false),
     }
 }
 
@@ -40,9 +40,9 @@ fn test_take() {
     info!{"testing basic tuplespace function take()"}
 
     let mut t_space = TupleSpace::new();
-    let tup1 = Tuple::new(vec!(E::D(3.14), E::I(123)), 86567);
-    let tup2 = Tuple::new(vec!(E::D(3.14), E::None), 12390);
-    let tup3 = Tuple::new(vec!(E::D(3.14), E::None), 12390);
+    let tup1 = Tuple::new(vec![E::D(3.14), E::I(123)], 86567);
+    let tup2 = Tuple::new(vec![E::D(3.14), E::None], 12390);
+    let tup3 = Tuple::new(vec![E::D(3.14), E::None], 12390);
 
     t_space.put(tup1);
     assert_eq!(t_space.len(), 1);
@@ -51,6 +51,6 @@ fn test_take() {
 
     match tup4 {
         Some(x) => assert!(tup3.content == x.content),
-        None => assert!(false)
+        None => assert!(false),
     }
 }

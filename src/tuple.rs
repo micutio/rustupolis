@@ -29,22 +29,22 @@ pub enum E {
 }
 
 impl E {
-	/// Prints an element to the standard output
-	pub fn print(&self) {
-		match self {
-			&E::I(ref i) => print!("Int: {}, ", i),
-			&E::D(ref d) => print!("Double: {}, ", d),
-			&E::S(ref s) => print!("String: {}, ", s),
-			&E::T(ref v) => {
-				print!("Tuple: [");
-				for e in v {
-					e.print();
-				}
-				print!("], ");
-			}
-			&E::None => println!("Wildcard"),
-		}
-	}
+    /// Prints an element to the standard output
+    pub fn print(&self) {
+        match self {
+            &E::I(ref i) => print!("Int: {}, ", i),
+            &E::D(ref d) => print!("Double: {}, ", d),
+            &E::S(ref s) => print!("String: {}, ", s),
+            &E::T(ref v) => {
+                print!("Tuple: [");
+                for e in v {
+                    e.print();
+                }
+                print!("], ");
+            }
+            &E::None => println!("Wildcard"),
+        }
+    }
 }
 
 /// Allow tuples to be equal to identical tuples with wildcards.
@@ -73,15 +73,17 @@ impl PartialEq for E {
 /// - generic number of fiels of generic types
 #[derive(PartialEq, Clone, Debug)]
 pub struct Tuple {
-   pub content: Vec<E>,
-   pub lifetime: u64,
+    pub content: Vec<E>,
+    pub lifetime: u64,
 }
 
 impl Tuple {
-
     /// Create a tuple.
     pub fn new(ct: Vec<E>, lt: u64) -> Tuple {
-        Tuple { content: ct, lifetime: lt }
+        Tuple {
+            content: ct,
+            lifetime: lt,
+        }
     }
 
     // pub fn print(&self) {
@@ -89,5 +91,4 @@ impl Tuple {
     //         elem.print();
     //     }
     // }
-
 }
