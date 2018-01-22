@@ -31,9 +31,9 @@ path = "examples/hello_world/main.rs"
 name = "single_threaded"
 path = "examples/single_threaded/main.rs"
 
-# [[example]]
-# name = "multi_threaded"
-# path = "examples/multi_threaded/main.rs"
+[[example]]
+name = "multi_threaded"
+path = "examples/multi_threaded/main.rs"
 
 [[test]]
 name = "startup_test"
