@@ -8,11 +8,12 @@ use rustupolis::tuplespace::TupleSpace;
 use rand::{Rng, Isaac64Rng, SeedableRng};
 
 use std::thread;
+use std::sync::{Arc, Mutex};
 
-fn put_and_read(mut rng: Isaac64Rng, id: String, t_space: &TupleSpace) {
-
+fn put_and_read(mut rng: Isaac64Rng, id: &str, t_space: std::sync::Arc<std::sync::Mutex<rustupolis::tuplespace::TupleSpace>>) {
+    let mut t_space = t_space.lock().unwrap();
     for _i in 0..5 {
-        println!("pushing tuple");
+        println!("{0} pushing tuple", id);
         let mut strg = "tuple from ".to_string();
         strg.push_str(&id);
         let int = rng.gen::<i32>();
@@ -51,16 +52,20 @@ fn main() {
     rng.reseed(seed);
 
     println!("rustupolis - hello world example");
-    let mut t_space = TupleSpace::new();
 
-    let handle_a = thread::spawn(move || put_and_read(rng, "a".to_string(), &t_space));
+    let t_space = Arc::new(Mutex::new(TupleSpace::new()));
+    let ts1 = t_space.clone();
+    let handle_a = thread::spawn(move || {
+        put_and_read(rng, "a", ts1);
+    });
 
-    // let handle_b = thread::spawn(|| {
-    //     put_and_read(rng, "b".to_string(), &t_space)
-    // });
+    let ts2 = t_space.clone();
+    let handle_b = thread::spawn(move || {
+        put_and_read(rng, "b", ts2);
+    });
 
     handle_a.join();
-    // handle_b.join();
+    handle_b.join();
 
     println!();
     println!();
