@@ -25,7 +25,7 @@ impl TupleSpace {
         trace!("[TupleSpace] reading tuple from space");
 
         let mut index = self.data.len();
-        let mut index_vec : Vec<usize> = Vec::new();
+        let mut index_vec: Vec<usize> = Vec::new();
         for i in 0..self.data.len() {
             if tup.content == self.data[i].content {
                 index = i;
@@ -35,7 +35,7 @@ impl TupleSpace {
 
         if index < self.data.len() {
             let mut rng = thread_rng();
-            let i : usize;
+            let i: usize;
             i = *rng.choose_mut(index_vec.as_mut_slice()).unwrap();
             let return_tup = self.data[i].clone();
             Some(return_tup)
@@ -46,16 +46,21 @@ impl TupleSpace {
 
     pub fn take(&mut self, tup: Tuple) -> Option<Tuple> {
         trace!("[TupleSpace] taking tuple from space");
+
         let mut index = self.data.len();
+        let mut index_vec: Vec<usize> = Vec::new();
         for i in 0..self.data.len() {
             if tup.content == self.data[i].content {
                 index = i;
-                break;
+                index_vec.push(i);
             }
         }
 
         if index < self.data.len() {
-            let return_tup = self.data.remove(index);
+            let mut rng = thread_rng();
+            let i: usize;
+            i = *rng.choose_mut(index_vec.as_mut_slice()).unwrap();
+            let return_tup = self.data.remove(i);
             Some(return_tup)
         } else {
             None
