@@ -64,10 +64,10 @@ fn main() {
     let ts2 = t_space.clone();
     let handle_b = thread::spawn(move || { put_and_read(rng, "b", ts2); });
 
-    handle_a.join();
-    handle_b.join();
+    let res_a = handle_a.join();
+    let res_b = handle_b.join();
 
-    println!();
-    println!();
+    println!("{:?}", res_a);
+    println!("{:?}", res_b);
 
 }

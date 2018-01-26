@@ -13,6 +13,7 @@ extern crate rand;
 
 // Publicly accessible modules
 pub mod tuplespace;
+
 pub mod tuple;
 
 // Publicly accessible parts of the library

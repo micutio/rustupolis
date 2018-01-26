@@ -4,16 +4,17 @@
 
 use tuple::Tuple;
 
-use rand::{Rng, thread_rng};
+use rand::{Rng, Isaac64Rng};
 
 pub struct TupleSpace {
     // Naive implementation for now: keep all tuples in a set.
     data: Vec<Tuple>,
+    rng: Isaac64Rng,
 }
 
 impl TupleSpace {
     pub fn new() -> TupleSpace {
-        TupleSpace { data: Vec::new() }
+        TupleSpace { data: Vec::new(), rng: Isaac64Rng::new_unseeded() }
     }
 
     pub fn put(&mut self, tup: Tuple) {
@@ -21,7 +22,7 @@ impl TupleSpace {
         self.data.push(tup);
     }
 
-    pub fn read(&self, tup: Tuple) -> Option<Tuple> {
+    pub fn read(&mut self, tup: Tuple) -> Option<Tuple> {
         trace!("[TupleSpace] reading tuple from space");
 
         let mut index = self.data.len();
@@ -34,9 +35,8 @@ impl TupleSpace {
         }
 
         if index < self.data.len() {
-            let mut rng = thread_rng();
             let i: usize;
-            i = *rng.choose_mut(index_vec.as_mut_slice()).unwrap();
+            i = *self.rng.choose_mut(index_vec.as_mut_slice()).unwrap();
             let return_tup = self.data[i].clone();
             Some(return_tup)
         } else {
@@ -57,9 +57,8 @@ impl TupleSpace {
         }
 
         if index < self.data.len() {
-            let mut rng = thread_rng();
             let i: usize;
-            i = *rng.choose_mut(index_vec.as_mut_slice()).unwrap();
+            i = *self.rng.choose_mut(index_vec.as_mut_slice()).unwrap();
             let return_tup = self.data.remove(i);
             Some(return_tup)
         } else {
