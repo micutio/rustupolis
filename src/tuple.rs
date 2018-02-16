@@ -2,7 +2,9 @@
 //!
 //! Tuple is the basis for everything that can be put into the tuple space.
 
-/// Enum, which is used to represent the tuple elements.
+use std::iter::Iterator;
+
+/// E represents a tuple element.
 #[derive(Clone, Debug)]
 pub enum E {
     /// Integer data type.
@@ -20,30 +22,36 @@ pub enum E {
     /// Tuple data type.
     ///
     /// Implemented as vector of tuple types (Vec<E>).
-    T(Vec<E>),
+    T(Tuple),
     /// None data type.
     ///
-    /// In context of this tuple, None stands for the wild card that is used
+    /// In context of this tuple, Any stands for the wild card that is used
     /// for pattern matching when querying the tuple space for certain tuples.
-    None,
+    Any,
 }
 
 impl E {
-    /// Prints an element to the standard output
-    pub fn print(&self) {
+    pub fn is_defined(&self) -> bool {
         match self {
-            &E::I(ref i) => print!("Int: {}, ", i),
-            &E::D(ref d) => print!("Double: {}, ", d),
-            &E::S(ref s) => print!("String: {}, ", s),
-            &E::T(ref v) => {
-                print!("Tuple: [");
-                for e in v {
-                    e.print();
-                }
-                print!("], ");
-            }
-            &E::None => println!("Wildcard"),
+            &E::I(_) => true,
+            &E::D(_) => true,
+            &E::S(_) => true,
+            &E::Any => false,
+            &E::T(ref t) => t.is_defined(),
         }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Tuple(Vec<E>);
+
+impl Tuple {
+    pub fn new(elements: &[E]) -> Tuple {
+        Tuple(elements.to_vec())
+    }
+
+    pub fn is_defined(&self) -> bool {
+        self.0.iter().all(|ref x| x.is_defined())
     }
 }
 
@@ -55,40 +63,18 @@ impl PartialEq for E {
             (&E::D(ref a), &E::D(ref b)) => a == b,
             (&E::S(ref a), &E::S(ref b)) => a == b,
             (&E::T(ref a), &E::T(ref b)) => a == b,
-            (&E::I(ref _a), &E::None) => true,
-            (&E::D(ref _a), &E::None) => true,
-            (&E::S(ref _a), &E::None) => true,
-            (&E::T(ref _a), &E::None) => true,
-            (&E::None, _) => true,
+            (&E::I(ref _a), &E::Any) => true,
+            (&E::D(ref _a), &E::Any) => true,
+            (&E::S(ref _a), &E::Any) => true,
+            (&E::T(ref _a), &E::Any) => true,
+            (&E::Any, _) => true,
             _ => false,
         }
     }
 }
 
-/// Base tuple for the tuple space.
-///
-/// Properties:
-/// - identifier
-/// - lifetime
-/// - generic number of fiels of generic types
-#[derive(PartialEq, Clone, Debug)]
-pub struct Tuple {
-    pub content: Vec<E>,
-    pub lifetime: u64,
-}
-
-impl Tuple {
-    /// Create a tuple.
-    pub fn new(ct: Vec<E>, lt: u64) -> Tuple {
-        Tuple {
-            content: ct,
-            lifetime: lt,
-        }
+impl PartialEq for Tuple {
+    fn eq(&self, other: &Tuple) -> bool {
+        self.0 == other.0
     }
-
-    // pub fn print(&self) {
-    //     for elem in self.content {
-    //         elem.print();
-    //     }
-    // }
 }
