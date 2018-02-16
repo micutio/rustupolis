@@ -19,8 +19,9 @@ test = true
 doctest = true
 
 [dependencies]
-log = "0.3.8"
 clap = "2"
+error-chain = "0.11"
+log = "0.3.8"
 rand = "0.4"
 
 [[example]]

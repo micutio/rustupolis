@@ -1,44 +1,30 @@
 extern crate rustupolis;
 
-use rustupolis::tuple::E;
-use rustupolis::tuple::Tuple;
-use rustupolis::tuplespace::TupleSpace;
+use rustupolis::tuple::{E, Tuple};
+use rustupolis::tuplespace::{SimpleSpace, Space};
 
 fn main() {
-
     println!("rustupolis - hello world example");
-    let mut t_space = TupleSpace::new();
+    let mut t_space = SimpleSpace::new();
     println!("creating space and putting three new tuples into it");
-    let tup1 = Tuple::new(
-        vec![E::S("Hello".to_string()), E::S("World!".to_string())],
-        86567,
-    );
-    let tup2 = Tuple::new(
-        vec![E::D(3.14), E::S("bar".to_string()), E::S("foo".to_string())],
-        12390,
-    );
-    let tup3 = Tuple::new(
-        vec![E::S("baz".to_string()), E::D(1.14), E::D(2.14), E::D(3.14)],
-        12390,
-    );
+    let tup1 = Tuple::new(&[E::S("Hello".to_string()), E::S("World!".to_string())]);
+    let tup2 = Tuple::new(&[E::D(3.14), E::S("bar".to_string()), E::S("foo".to_string())]);
+    let tup3 = Tuple::new(&[E::S("baz".to_string()), E::D(1.14), E::D(2.14), E::D(3.14)]);
 
-    t_space.put(tup1);
-    t_space.put(tup2);
-    t_space.put(tup3);
+    t_space.out(tup1).unwrap();
+    t_space.out(tup2).unwrap();
+    t_space.out(tup3).unwrap();
 
-    println!("taking out a tuple that matches the pattern (None, None)");
-    let tup4 = t_space.take(Tuple::new(vec![E::None, E::None], 0));
+    println!("taking out a tuple that matches the pattern (Any, Any)");
+    let tup4 = t_space.in_(Tuple::new(&[E::Any, E::Any]));
 
     println!("printing tuple contents:");
-    match tup4 {
+    match tup4.unwrap() {
         Some(x) => {
-            for elem in x.content {
-                elem.print();
-            }
+            println!("{:?}", x);
         }
         None => assert!(false),
     }
     println!();
     println!();
-
 }
