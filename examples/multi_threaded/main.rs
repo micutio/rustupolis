@@ -1,21 +1,21 @@
-extern crate rustupolis;
 extern crate rand;
-
-use rustupolis::error::Result;
-use rustupolis::tuple::{E, Tuple};
-use rustupolis::tuplespace::{SimpleSpace, Space};
-
-use rand::{Rng, Isaac64Rng, SeedableRng};
+extern crate rustupolis;
 
 use std::thread;
 use std::sync::{Arc, Mutex};
 
+use rand::{Rng, SeedableRng};
+
+use rustupolis::error::Result;
+use rustupolis::tuple::{Tuple, E};
+use rustupolis::store::{SimpleStore, Store};
+
 fn put_and_read(
-    mut rng: Isaac64Rng,
+    rng: &mut rand::Isaac64Rng,
     id: &str,
-    t_space: std::sync::Arc<std::sync::Mutex<rustupolis::tuplespace::SimpleSpace>>,
+    t_store: std::sync::Arc<std::sync::Mutex<rustupolis::store::SimpleStore>>,
 ) -> Result<()> {
-    let mut t_space = t_space.lock().unwrap();
+    let mut t_store = t_store.lock().unwrap();
     for _i in 0..5 {
         println!("{0} pushing tuple", id);
         let mut strg = "tuple from ".to_string();
@@ -29,12 +29,12 @@ fn put_and_read(
             E::S("more content...".to_string()),
         ]);
         println!("{:?}", tup);
-        &mut t_space.out(tup)?;
+        &mut t_store.out(tup)?;
     }
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_space.rd(Tuple::new(&[E::Any, E::Any, E::Any, E::Any]))?;
+        let tup = t_store.rdp(Tuple::new(&[E::Any, E::Any, E::Any, E::Any]))?;
         println!("{:?}", tup);
     }
 
@@ -48,12 +48,16 @@ fn main() {
 
     println!("rustupolis - multi threaded example");
 
-    let t_space = Arc::new(Mutex::new(SimpleSpace::new()));
-    let ts1 = t_space.clone();
-    let handle_a = thread::spawn(move || { put_and_read(rng, "a", ts1).unwrap(); });
+    let t_store = Arc::new(Mutex::new(SimpleStore::new()));
+    let ts1 = t_store.clone();
+    let handle_a = thread::spawn(move || {
+        put_and_read(&mut rng, "a", ts1).unwrap();
+    });
 
-    let ts2 = t_space.clone();
-    let handle_b = thread::spawn(move || { put_and_read(rng, "b", ts2).unwrap(); });
+    let ts2 = t_store.clone();
+    let handle_b = thread::spawn(move || {
+        put_and_read(&mut rng, "b", ts2).unwrap();
+    });
 
     let res_a = handle_a.join();
     let res_b = handle_b.join();

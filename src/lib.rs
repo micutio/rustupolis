@@ -15,8 +15,6 @@ extern crate error_chain;
 extern crate log;
 extern crate rand;
 
-pub mod tuplespace;
-
-pub mod tuple;
-
 pub mod error;
+pub mod store;
+pub mod tuple;
