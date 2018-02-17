@@ -1,7 +1,7 @@
 [package]
 name = "rustupolis"
 version = "0.0.1"
-authors = ["Michael Wagner <wagner.mchl@googlemail.com>"]
+authors = ["Michael Wagner <wagner.mchl@googlemail.com>", "Casey Marshall <github@cmars.tech>"]
 description = "An implementation of the tuple space data structure in Rust."
 repository = "https://github.com/micutio/rustupolis"
 readme = "README.md"
@@ -37,9 +37,5 @@ name = "multi_threaded"
 path = "examples/multi_threaded/main.rs"
 
 [[test]]
-name = "startup_test"
-path = "tests/startup.rs"
-
-[[test]]
-name = "basic_functions_test"
-path = "tests/basic_functions.rs"
+name = "simplestore_test"
+path = "tests/simplestore.rs"

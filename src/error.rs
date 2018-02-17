@@ -1,5 +1,4 @@
-
 error_chain!{
-	errors {
-	}
+    errors {
+    }
 }
