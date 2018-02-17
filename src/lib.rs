@@ -13,8 +13,10 @@
 extern crate error_chain;
 #[macro_use]
 extern crate log;
-extern crate rand;
+
+extern crate futures;
 
 pub mod error;
+pub mod space;
 pub mod store;
 pub mod tuple;
