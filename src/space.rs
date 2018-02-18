@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 extern crate futures;
 use futures::prelude::{Async, Future, Stream};
 use futures::sync::mpsc::{channel, Receiver, Sender};
@@ -7,6 +5,7 @@ use futures::sync::mpsc::{channel, Receiver, Sender};
 use error::Error;
 use store::Store;
 use tuple::Tuple;
+use wildcard;
 
 pub enum Match {
     Ready(Option<Tuple>),
@@ -42,7 +41,7 @@ impl Future for Match {
 
 pub struct Space<T: Store> {
     store: T,
-    pending: PendingStore,
+    pending: wildcard::Tree<Sender<Tuple>>,
 }
 
 impl<T> Space<T>
@@ -52,7 +51,7 @@ where
     pub fn new(store: T) -> Space<T> {
         Space {
             store: store,
-            pending: PendingStore::new(),
+            pending: wildcard::Tree::new(),
         }
     }
 
@@ -84,5 +83,3 @@ where
         panic!("todo");
     }
 }
-
-type PendingStore = BTreeMap<Tuple, Sender<Tuple>>; // FIXME
