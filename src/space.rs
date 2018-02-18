@@ -20,13 +20,22 @@ impl Future for Match {
 
     fn poll(&mut self) -> Result<Async<Tuple>, Error> {
         match self {
-            &mut Match::Ready(ref mut tup) => Ok(Async::Ready(tup.take().unwrap())),
-            &mut Match::Pending(ref mut rx) => match rx.poll() {
-                Ok(Async::Ready(ref mut tup)) => Ok(Async::Ready(tup.take().unwrap())),
-                Ok(Async::NotReady) => Ok(Async::NotReady),
-                Err(_) => bail!("unexpected channel error!"),
+            &mut Match::Ready(ref mut opt) => match opt.take() {
+                Some(tup) => Ok(Async::Ready(tup)),
+                None => bail!("invalid Match::Ready, expected tuple, was empty"),
             },
-            &mut Match::Fail(ref mut err) => Err(err.take().unwrap()),
+            &mut Match::Pending(ref mut rx) => match rx.poll() {
+                Ok(Async::Ready(ref mut opt)) => match opt.take() {
+                    Some(tup) => Ok(Async::Ready(tup)),
+                    None => bail!("channel closed on pending tuple"),
+                },
+                Ok(Async::NotReady) => Ok(Async::NotReady),
+                Err(e) => bail!("failed to receive pending tuple: {:?}", e),
+            },
+            &mut Match::Fail(ref mut opt) => match opt.take() {
+                Some(err) => Err(err),
+                None => bail!("invalid Match::Error, expected error, was empty"),
+            },
         }
     }
 }
@@ -49,7 +58,7 @@ where
 
     pub fn in_(&mut self, tup: Tuple) -> Match {
         match self.store.inp(&tup) {
-            Ok(Some(have)) => Match::Ready(Some(have)),
+            Ok(Some(matched)) => Match::Ready(Some(matched)),
             Ok(None) => {
                 let (tx, rx) = channel(0);
                 self.pending.insert(tup.clone(), tx);
@@ -61,7 +70,7 @@ where
 
     pub fn rd(&mut self, tup: Tuple) -> Match {
         match self.store.rdp(&tup) {
-            Ok(Some(have)) => Match::Ready(Some(have)),
+            Ok(Some(matched)) => Match::Ready(Some(matched)),
             Ok(None) => {
                 let (tx, rx) = channel(0);
                 self.pending.insert(tup.clone(), tx);
