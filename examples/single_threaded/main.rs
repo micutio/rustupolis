@@ -24,7 +24,7 @@ fn put_and_read(rng: &mut rand::Isaac64Rng, t_store: &mut SimpleStore) -> Result
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_store.rdp(Tuple::new(&[E::Any, E::Any, E::Any, E::Any]))?;
+        let tup = t_store.rdp(&Tuple::new(&[E::Any, E::Any, E::Any, E::Any]))?;
         println!("{:?}", tup);
     }
 

@@ -7,9 +7,9 @@ use error::Result;
 /// Implementors should only store _defined_ tuples.
 pub trait Store {
     /// Read a matching tuple and remove it atomically.
-    fn inp(&mut self, tup: Tuple) -> Result<Option<Tuple>>;
+    fn inp(&mut self, tup: &Tuple) -> Result<Option<Tuple>>;
     /// Read a matching tuple.
-    fn rdp(&mut self, tup: Tuple) -> Result<Option<Tuple>>;
+    fn rdp(&mut self, tup: &Tuple) -> Result<Option<Tuple>>;
     /// Write a tuple.
     fn out(&mut self, tup: Tuple) -> Result<()>;
 }
@@ -36,7 +36,7 @@ impl Store for SimpleStore {
         Ok(())
     }
 
-    fn rdp(&mut self, tup: Tuple) -> Result<Option<Tuple>> {
+    fn rdp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
         if let Some(m) = self.0.range(tup.range()).next() {
             Ok(Some(m.clone()))
         } else {
@@ -44,7 +44,7 @@ impl Store for SimpleStore {
         }
     }
 
-    fn inp(&mut self, tup: Tuple) -> Result<Option<Tuple>> {
+    fn inp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
         let m = match self.0.range(tup.range()).next() {
             Some(m) => m.clone(),
             None => return Ok(None),
