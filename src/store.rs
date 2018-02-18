@@ -1,7 +1,10 @@
+use std::collections::BTreeSet;
+
 use tuple::Tuple;
 use error::Result;
 
 /// A Store is an associative memory which stores and retrieves tuples.
+/// Implementors should only store _defined_ tuples.
 pub trait Store {
     /// Read a matching tuple and remove it atomically.
     fn inp(&mut self, tup: Tuple) -> Result<Option<Tuple>>;
@@ -11,12 +14,12 @@ pub trait Store {
     fn out(&mut self, tup: Tuple) -> Result<()>;
 }
 
-/// A simple, naive implementation of a Store backed by a Vec.
-pub struct SimpleStore(Vec<Tuple>);
+/// A simple, naive in-memory implementation of a Store.
+pub struct SimpleStore(BTreeSet<Tuple>);
 
 impl SimpleStore {
     pub fn new() -> SimpleStore {
-        SimpleStore(Vec::new())
+        SimpleStore(BTreeSet::new())
     }
 
     pub fn len(&self) -> usize {
@@ -29,25 +32,23 @@ impl Store for SimpleStore {
         if !tup.is_defined() {
             bail!("cannot write an undefined tuple");
         }
-        self.0.push(tup);
+        self.0.insert(tup);
         Ok(())
     }
 
     fn rdp(&mut self, tup: Tuple) -> Result<Option<Tuple>> {
-        for i in 0..self.0.len() {
-            if tup == self.0[i] {
-                return Ok(Some(self.0[i].clone()));
-            }
+        if let Some(m) = self.0.range(tup.range()).next() {
+            Ok(Some(m.clone()))
+        } else {
+            Ok(None)
         }
-        Ok(None)
     }
 
     fn inp(&mut self, tup: Tuple) -> Result<Option<Tuple>> {
-        for i in 0..self.0.len() {
-            if tup == self.0[i] {
-                return Ok(Some(self.0.remove(i)));
-            }
-        }
-        Ok(None)
+        let m = match self.0.range(tup.range()).next() {
+            Some(m) => m.clone(),
+            None => return Ok(None),
+        };
+        Ok(self.0.take(&m))
     }
 }
