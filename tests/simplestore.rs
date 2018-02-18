@@ -1,7 +1,7 @@
 extern crate rustupolis;
 
 use rustupolis::tuple::{Tuple, E};
-use rustupolis::space::{SimpleStore, Store};
+use rustupolis::store::{SimpleStore, Store};
 
 #[macro_use]
 extern crate log;
@@ -12,21 +12,21 @@ use error_chain::ChainedError;
 
 #[test]
 fn test_len() {
-    let t_space = SimpleSpace::new();
-    assert_eq!(t_space.len(), 0);
+    let mut t_store = SimpleStore::new();
+    assert_eq!(t_store.len(), 0);
     for i in 0..42 {
-        assert_ok!(t_space.out(Tuple::new(&[E::I(i)])));
+        assert!(t_store.out(Tuple::new(&[E::I(i)])).is_ok());
     }
-    assert_eq!(t_space.len(), 42);
+    assert_eq!(t_store.len(), 42);
 }
 
 #[test]
 fn test_out() {
-    let mut t_space = SimpleStore::new();
+    let mut t_store = SimpleStore::new();
     let content = E::S("test content".to_string());
     let tup = Tuple::new(&[content]);
 
-    t_space.out(tup).unwrap()
+    assert!(t_store.out(tup).is_ok())
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn test_rdp() {
     let tup4 = t_space.rdp(tup2);
 
     match tup4.unwrap() {
-        Some(x) => assert!(tup3 == x),
+        Some(ref x) => assert!(tup3.matches(x)),
         None => assert!(false),
     }
 }
@@ -58,7 +58,7 @@ fn test_inp() {
     assert_eq!(t_space.len(), 0);
 
     match tup4.unwrap() {
-        Some(x) => assert!(tup3 == x),
+        Some(ref x) => assert!(tup3.matches(x)),
         None => assert!(false),
     }
 }
