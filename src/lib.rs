@@ -15,8 +15,10 @@ extern crate error_chain;
 extern crate log;
 
 extern crate futures;
+extern crate indextree_ng;
 
 pub mod error;
 pub mod space;
 pub mod store;
 pub mod tuple;
+mod wildcard;

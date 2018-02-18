@@ -116,6 +116,18 @@ impl Tuple {
         Tuple(elements.to_vec())
     }
 
+    pub fn first(&self) -> &E {
+        &self.0[0]
+    }
+
+    pub fn rest(&self) -> Tuple {
+        Tuple::new(&self.0[1..])
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
     pub fn is_defined(&self) -> bool {
         self.0.iter().all(|ref x| x.is_defined())
     }
