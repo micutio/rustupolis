@@ -1,6 +1,7 @@
 extern crate futures;
-use futures::Sink;
-use futures::prelude::{Async, Future, Stream};
+use futures::{Poll, Sink};
+use futures::future::FutureResult;
+use futures::prelude::{Future, Stream};
 use futures::sync::mpsc::{channel, Receiver, Sender};
 
 use error::Error;
@@ -9,33 +10,18 @@ use tuple::Tuple;
 use wildcard;
 
 pub enum Match {
-    Ready(Option<Tuple>),
+    Done(FutureResult<Option<Tuple>, Error>),
     Pending(Receiver<Tuple>),
-    Fail(Option<Error>),
 }
 
 impl Future for Match {
-    type Item = Tuple;
+    type Item = Option<Tuple>;
     type Error = Error;
 
-    fn poll(&mut self) -> Result<Async<Tuple>, Error> {
+    fn poll(&mut self) -> Poll<Option<Tuple>, Error> {
         match self {
-            &mut Match::Ready(ref mut opt) => match opt.take() {
-                Some(tup) => Ok(Async::Ready(tup)),
-                None => bail!("invalid Match::Ready, expected tuple, was empty"),
-            },
-            &mut Match::Pending(ref mut rx) => match rx.poll() {
-                Ok(Async::Ready(ref mut opt)) => match opt.take() {
-                    Some(tup) => Ok(Async::Ready(tup)),
-                    None => bail!("channel closed on pending tuple"),
-                },
-                Ok(Async::NotReady) => Ok(Async::NotReady),
-                Err(e) => bail!("failed to receive pending tuple: {:?}", e),
-            },
-            &mut Match::Fail(ref mut opt) => match opt.take() {
-                Some(err) => Err(err),
-                None => bail!("invalid Match::Error, expected error, was empty"),
-            },
+            &mut Match::Done(ref mut result) => result.poll(),
+            &mut Match::Pending(ref mut rx) => rx.poll().map_err(|()| "receive failed".into()),
         }
     }
 }
@@ -58,25 +44,23 @@ where
 
     pub fn in_(&mut self, tup: Tuple) -> Match {
         match self.store.inp(&tup) {
-            Ok(Some(matched)) => Match::Ready(Some(matched)),
             Ok(None) => {
                 let (tx, rx) = channel(0);
                 self.pending.insert(tup.clone(), tx);
                 Match::Pending(rx)
             }
-            Err(e) => Match::Fail(Some(e)),
+            result => Match::Done(FutureResult::from(result)),
         }
     }
 
     pub fn rd(&mut self, tup: Tuple) -> Match {
         match self.store.rdp(&tup) {
-            Ok(Some(matched)) => Match::Ready(Some(matched)),
             Ok(None) => {
                 let (tx, rx) = channel(0);
                 self.pending.insert(tup.clone(), tx);
                 Match::Pending(rx)
             }
-            Err(e) => Match::Fail(Some(e)),
+            result => Match::Done(FutureResult::from(result)),
         }
     }
 
@@ -87,7 +71,7 @@ where
             Box::new(
                 tx.send(tup)
                     .map(|_| ())
-                    .map_err(|e| Error::with_chain(e, "failed to send")),
+                    .map_err(|e| Error::with_chain(e, "send failed")),
             )
         } else {
             let result = self.store.out(tup);
