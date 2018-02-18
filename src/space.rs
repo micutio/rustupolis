@@ -1,4 +1,5 @@
 extern crate futures;
+use futures::Sink;
 use futures::prelude::{Async, Future, Stream};
 use futures::sync::mpsc::{channel, Receiver, Sender};
 
@@ -80,6 +81,17 @@ where
     }
 
     pub fn out(&mut self, tup: Tuple) -> Box<Future<Item = (), Error = Error>> {
-        panic!("todo");
+        if !tup.is_defined() {
+            Box::new(futures::future::err("undefined tuple".into()))
+        } else if let Some(tx) = self.pending.take(tup.clone()) {
+            Box::new(
+                tx.send(tup)
+                    .map(|_| ())
+                    .map_err(|e| Error::with_chain(e, "failed to send")),
+            )
+        } else {
+            let result = self.store.out(tup);
+            Box::new(futures::future::result(result))
+        }
     }
 }
