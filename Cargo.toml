@@ -25,6 +25,7 @@ futures = "0.1"
 indextree-ng = "1.0.5"
 log = "0.3.8"
 rand = "0.4"
+env_logger = "0.4"
 
 [[example]]
 name = "hello_world"
@@ -39,5 +40,13 @@ name = "multi_threaded"
 path = "examples/multi_threaded/main.rs"
 
 [[test]]
-name = "simplestore_test"
+name = "tuple"
+path = "tests/tuple.rs"
+
+[[test]]
+name = "simplestore"
 path = "tests/simplestore.rs"
+
+[[test]]
+name = "wildcard"
+path = "tests/wildcard.rs"

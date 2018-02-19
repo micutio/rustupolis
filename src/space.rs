@@ -46,8 +46,11 @@ where
         match self.store.inp(&tup) {
             Ok(None) => {
                 let (tx, rx) = channel(0);
-                self.pending.insert(tup.clone(), tx);
-                Match::Pending(rx)
+                if let Err(e) = self.pending.insert(tup.clone(), tx) {
+                    Match::Done(FutureResult::from(Err(Error::with_chain(e, "send failed"))))
+                } else {
+                    Match::Pending(rx)
+                }
             }
             result => Match::Done(FutureResult::from(result)),
         }
@@ -57,8 +60,11 @@ where
         match self.store.rdp(&tup) {
             Ok(None) => {
                 let (tx, rx) = channel(0);
-                self.pending.insert(tup.clone(), tx);
-                Match::Pending(rx)
+                if let Err(e) = self.pending.insert(tup.clone(), tx) {
+                    Match::Done(FutureResult::from(Err(Error::with_chain(e, "send failed"))))
+                } else {
+                    Match::Pending(rx)
+                }
             }
             result => Match::Done(FutureResult::from(result)),
         }
