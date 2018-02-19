@@ -10,6 +10,8 @@ pub enum Node<T> {
     Leaf(Option<T>),
 }
 
+/// A wildcard tree that can insert and take values associated with a pending wildcard. Used by
+/// Space for coordination.
 pub struct Tree<T> {
     arena: Arena<Node<T>>,
     root_id: NodeId,
