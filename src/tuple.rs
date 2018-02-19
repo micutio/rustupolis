@@ -102,11 +102,11 @@ impl E {
             (&E::D(ref a), &E::D(ref b)) => a == b,
             (&E::S(ref a), &E::S(ref b)) => a == b,
             (&E::T(ref a), &E::T(ref b)) => a.matches(b),
-            (&E::I(ref _a), &E::Any) => true,
-            (&E::D(ref _a), &E::Any) => true,
-            (&E::S(ref _a), &E::Any) => true,
-            (&E::T(ref _a), &E::Any) => true,
+            (&E::Any, &E::Any) => false,
+            (&E::Any, &E::None) => false,
             (&E::Any, _) => true,
+            (&E::None, _) => false,
+            (_, &E::Any) => true,
             _ => false,
         }
     }

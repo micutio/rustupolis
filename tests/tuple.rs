@@ -30,6 +30,26 @@ fn test_defined() {
 }
 
 #[test]
+fn test_matching() {
+    // E::Any matches actuals.
+    for e in &[
+        E::I(0),
+        E::D(0.1),
+        E::str("foo"),
+        E::T(tuple![]),
+        E::T(tuple![E::I(0)]),
+    ] {
+        assert!(E::Any.matches(e));
+        assert!(e.matches(&E::Any));
+    }
+    // Formals do not match formals.
+    assert!(!E::Any.matches(&E::Any));
+    assert!(!E::None.matches(&E::None));
+    assert!(!E::Any.matches(&E::None));
+    assert!(!E::None.matches(&E::Any));
+}
+
+#[test]
 fn test_cmp() {
     assert_eq!(tuple![].cmp(&tuple![E::I(0)]), Ordering::Less);
     assert_eq!(tuple![].cmp(&tuple![]), Ordering::Equal);
