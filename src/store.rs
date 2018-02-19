@@ -37,18 +37,31 @@ impl Store for SimpleStore {
     }
 
     fn rdp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
-        if let Some(m) = self.0.range(tup.range()).next() {
-            Ok(Some(m.clone()))
-        } else {
-            Ok(None)
+        if tup.is_defined() && self.0.contains(tup) {
+            return Ok(Some(tup.clone()));
         }
+        for m in self.0.range(tup.range()) {
+            if tup.matches(m) {
+                return Ok(Some(m.clone()));
+            }
+        }
+        Ok(None)
     }
 
     fn inp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
-        let m = match self.0.range(tup.range()).next() {
-            Some(m) => m.clone(),
-            None => return Ok(None),
-        };
-        Ok(self.0.take(&m))
+        if tup.is_defined() {
+            return Ok(self.0.take(tup));
+        }
+        let mut result = None;
+        for m in self.0.range(tup.range()) {
+            if tup.matches(m) {
+                result = Some(m.clone());
+                break;
+            }
+        }
+        if let Some(ref m) = result {
+            return Ok(self.0.take(m));
+        }
+        Ok(None)
     }
 }

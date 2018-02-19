@@ -77,6 +77,10 @@ impl Ord for E {
 }
 
 impl E {
+    pub fn str<S: Into<String>>(s: S) -> E {
+        E::S(s.into())
+    }
+
     /// Returns true if one or more elements are the wildcard E::Any, recursively.
     pub fn is_defined(&self) -> bool {
         match self {
@@ -97,7 +101,7 @@ impl E {
             (&E::I(ref a), &E::I(ref b)) => a == b,
             (&E::D(ref a), &E::D(ref b)) => a == b,
             (&E::S(ref a), &E::S(ref b)) => a == b,
-            (&E::T(ref a), &E::T(ref b)) => a == b,
+            (&E::T(ref a), &E::T(ref b)) => a.matches(b),
             (&E::I(ref _a), &E::Any) => true,
             (&E::D(ref _a), &E::Any) => true,
             (&E::S(ref _a), &E::Any) => true,
@@ -114,6 +118,10 @@ pub struct Tuple(Vec<E>);
 impl Tuple {
     pub fn new(elements: &[E]) -> Tuple {
         Tuple(elements.to_vec())
+    }
+
+    pub fn from_vec(v: Vec<E>) -> Tuple {
+        Tuple(v)
     }
 
     pub fn first(&self) -> &E {
@@ -133,10 +141,11 @@ impl Tuple {
     }
 
     pub fn matches(&self, other: &Tuple) -> bool {
-        self.0
-            .iter()
-            .zip(other.0.iter())
-            .all(|(ref x, ref y): (&E, &E)| x.matches(y))
+        (self.is_empty() == other.is_empty())
+            && self.0
+                .iter()
+                .zip(other.0.iter())
+                .all(|(ref x, ref y): (&E, &E)| x.matches(y))
     }
 
     pub fn range(&self) -> (Bound<Tuple>, Bound<Tuple>) {
@@ -151,12 +160,23 @@ impl Tuple {
     }
 
     fn terminator(&self) -> Tuple {
-        let mut end = self.clone();
-        for i in 0..end.0.len() {
-            if let E::Any = end.0[i] {
-                end.0[i] = E::None
-            }
-        }
-        end
+        Tuple(
+            self.0
+                .iter()
+                .map(|x| match x {
+                    &E::Any => E::None,
+                    &E::T(ref t) => E::T(t.terminator()),
+                    e => e.clone(),
+                })
+                .collect::<Vec<E>>(),
+        )
     }
+}
+
+#[macro_export]
+macro_rules! tuple {
+    ($($x:expr),*) => (
+        $crate::tuple::Tuple::new(&[$($x), *])
+    );
+    ($($x:expr,)*) => (tuple![$($x),*])
 }

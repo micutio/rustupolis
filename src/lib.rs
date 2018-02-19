@@ -21,4 +21,4 @@ pub mod error;
 pub mod space;
 pub mod store;
 pub mod tuple;
-mod wildcard;
+pub mod wildcard;

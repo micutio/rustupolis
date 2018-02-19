@@ -1,4 +1,5 @@
 extern crate rand;
+#[macro_use]
 extern crate rustupolis;
 
 use std::thread;
@@ -7,7 +8,7 @@ use std::sync::{Arc, Mutex};
 use rand::{Rng, SeedableRng};
 
 use rustupolis::error::Result;
-use rustupolis::tuple::{Tuple, E};
+use rustupolis::tuple::E;
 use rustupolis::store::{SimpleStore, Store};
 
 fn put_and_read(
@@ -22,19 +23,19 @@ fn put_and_read(
         strg.push_str(&id);
         let int = rng.gen::<i32>();
         let dbl = rng.gen::<f64>();
-        let tup = Tuple::new(&[
+        let tup = tuple![
             E::S(strg),
             E::I(int),
             E::D(dbl),
             E::S("more content...".to_string()),
-        ]);
+        ];
         println!("{:?}", tup);
         &mut t_store.out(tup)?;
     }
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_store.rdp(&Tuple::new(&[E::Any, E::Any, E::Any, E::Any]))?;
+        let tup = t_store.rdp(&tuple![E::Any, E::Any, E::Any, E::Any])?;
         println!("{:?}", tup);
     }
 
