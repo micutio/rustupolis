@@ -50,3 +50,7 @@ path = "tests/simplestore.rs"
 [[test]]
 name = "wildcard"
 path = "tests/wildcard.rs"
+
+[[test]]
+name = "space"
+path = "tests/space.rs"
