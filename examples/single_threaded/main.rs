@@ -1,57 +1,47 @@
-extern crate rustupolis;
 extern crate rand;
+#[macro_use]
+extern crate rustupolis;
 
+use rustupolis::error::Result;
 use rustupolis::tuple::E;
-use rustupolis::tuple::Tuple;
-use rustupolis::tuplespace::TupleSpace;
+use rustupolis::store::{SimpleStore, Store};
 
-use rand::{Rng, Isaac64Rng, SeedableRng};
+use rand::{Rng, SeedableRng};
 
-fn put_and_read(mut rng: Isaac64Rng, mut t_space: TupleSpace) {
-
+fn put_and_read(rng: &mut rand::Isaac64Rng, t_store: &mut SimpleStore) -> Result<()> {
     for _i in 0..5 {
         println!("pushing tuple");
         let int = rng.gen::<i32>();
         let dbl = rng.gen::<f64>();
-        let tup = Tuple::new(
-            vec![
-                E::S("tuple".to_string()),
-                E::I(int),
-                E::D(dbl),
-                E::S("more content...".to_string()),
-            ],
-            99999,
-        );
-        // tup.print();
+        let tup = tuple![
+            E::S("tuple".to_string()),
+            E::I(int),
+            E::D(dbl),
+            E::S("more content...".to_string()),
+        ];
         println!("{:?}", tup);
-        t_space.put(tup);
+        t_store.out(tup)?;
     }
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_space.read(Tuple::new(vec![E::None, E::None, E::None, E::None], 0));
+        let tup = t_store.rdp(&tuple![E::Any, E::Any, E::Any, E::Any])?;
         println!("{:?}", tup);
     }
 
+    Ok(())
 }
 
 fn main() {
-
-    // let mut rng = match OsRng::new() {
-    //     Ok(g) => g,
-    //     Err(e) => panic!("Failed to obtain OS RNG: {}", e)
-    // };
-
     let seed: &[_] = &[1, 2, 3, 4];
     let mut rng = rand::Isaac64Rng::new_unseeded();
     rng.reseed(seed);
 
-    println!("rustupolis - hello world example");
-    let t_space = TupleSpace::new();
+    println!("rustupolis - single threaded example");
+    let mut t_store = SimpleStore::new();
 
-    put_and_read(rng, t_space);
+    put_and_read(&mut rng, &mut t_store).unwrap();
 
     println!();
     println!();
-
 }

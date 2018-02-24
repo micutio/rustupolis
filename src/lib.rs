@@ -6,15 +6,19 @@
 //!
 //! This Library does ...
 
+// `error_chain!` can recurse deeply
+#![recursion_limit = "1024"]
+
+#[macro_use]
+extern crate error_chain;
 #[macro_use]
 extern crate log;
-extern crate rand;
 
+extern crate futures;
+extern crate indextree_ng;
 
-// Publicly accessible modules
-pub mod tuplespace;
-
+pub mod error;
+pub mod space;
+pub mod store;
 pub mod tuple;
-
-// Publicly accessible parts of the library
-// pub use ...
+pub mod wildcard;

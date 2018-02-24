@@ -1,73 +1,68 @@
-extern crate rustupolis;
 extern crate rand;
-
-use rustupolis::tuple::E;
-use rustupolis::tuple::Tuple;
-use rustupolis::tuplespace::TupleSpace;
-
-use rand::{Rng, Isaac64Rng, SeedableRng};
+#[macro_use]
+extern crate rustupolis;
 
 use std::thread;
 use std::sync::{Arc, Mutex};
 
+use rand::{Rng, SeedableRng};
+
+use rustupolis::error::Result;
+use rustupolis::tuple::E;
+use rustupolis::store::{SimpleStore, Store};
+
 fn put_and_read(
-    mut rng: Isaac64Rng,
+    rng: &mut rand::Isaac64Rng,
     id: &str,
-    t_space: std::sync::Arc<std::sync::Mutex<rustupolis::tuplespace::TupleSpace>>,
-) {
-    let mut t_space = t_space.lock().unwrap();
+    t_store: std::sync::Arc<std::sync::Mutex<rustupolis::store::SimpleStore>>,
+) -> Result<()> {
+    let mut t_store = t_store.lock().unwrap();
     for _i in 0..5 {
         println!("{0} pushing tuple", id);
         let mut strg = "tuple from ".to_string();
         strg.push_str(&id);
         let int = rng.gen::<i32>();
         let dbl = rng.gen::<f64>();
-        let tup = Tuple::new(
-            vec![
-                E::S(strg),
-                E::I(int),
-                E::D(dbl),
-                E::S("more content...".to_string()),
-            ],
-            99999,
-        );
-        // tup.print();
+        let tup = tuple![
+            E::S(strg),
+            E::I(int),
+            E::D(dbl),
+            E::S("more content...".to_string()),
+        ];
         println!("{:?}", tup);
-        &mut t_space.put(tup);
+        &mut t_store.out(tup)?;
     }
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_space.read(Tuple::new(vec![E::None, E::None, E::None, E::None], 0));
+        let tup = t_store.rdp(&tuple![E::Any, E::Any, E::Any, E::Any])?;
         println!("{:?}", tup);
     }
 
+    Ok(())
 }
 
 fn main() {
-
-    // let mut rng = match OsRng::new() {
-    //     Ok(g) => g,
-    //     Err(e) => panic!("Failed to obtain OS RNG: {}", e)
-    // };
-
     let seed: &[_] = &[1, 2, 3, 4];
     let mut rng = rand::Isaac64Rng::new_unseeded();
     rng.reseed(seed);
 
-    println!("rustupolis - hello world example");
+    println!("rustupolis - multi threaded example");
 
-    let t_space = Arc::new(Mutex::new(TupleSpace::new()));
-    let ts1 = t_space.clone();
-    let handle_a = thread::spawn(move || { put_and_read(rng, "a", ts1); });
+    let t_store = Arc::new(Mutex::new(SimpleStore::new()));
+    let ts1 = t_store.clone();
+    let handle_a = thread::spawn(move || {
+        put_and_read(&mut rng, "a", ts1).unwrap();
+    });
 
-    let ts2 = t_space.clone();
-    let handle_b = thread::spawn(move || { put_and_read(rng, "b", ts2); });
+    let ts2 = t_store.clone();
+    let handle_b = thread::spawn(move || {
+        put_and_read(&mut rng, "b", ts2).unwrap();
+    });
 
     let res_a = handle_a.join();
     let res_b = handle_b.join();
 
     println!("{:?}", res_a);
     println!("{:?}", res_b);
-
 }

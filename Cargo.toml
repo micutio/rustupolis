@@ -1,7 +1,7 @@
 [package]
 name = "rustupolis"
 version = "0.0.1"
-authors = ["Michael Wagner <wagner.mchl@googlemail.com>"]
+authors = ["Michael Wagner <wagner.mchl@googlemail.com>", "Casey Marshall <github@cmars.tech>"]
 description = "An implementation of the tuple space data structure in Rust."
 repository = "https://github.com/micutio/rustupolis"
 readme = "README.md"
@@ -19,9 +19,13 @@ test = true
 doctest = true
 
 [dependencies]
-log = "0.3.8"
 clap = "2"
+error-chain = "0.11"
+futures = "0.1"
+indextree-ng = "1.0.5"
+log = "0.3.8"
 rand = "0.4"
+env_logger = "0.4"
 
 [[example]]
 name = "hello_world"
@@ -36,9 +40,17 @@ name = "multi_threaded"
 path = "examples/multi_threaded/main.rs"
 
 [[test]]
-name = "startup_test"
-path = "tests/startup.rs"
+name = "tuple"
+path = "tests/tuple.rs"
 
 [[test]]
-name = "basic_functions_test"
-path = "tests/basic_functions.rs"
+name = "simplestore"
+path = "tests/simplestore.rs"
+
+[[test]]
+name = "wildcard"
+path = "tests/wildcard.rs"
+
+[[test]]
+name = "space"
+path = "tests/space.rs"
