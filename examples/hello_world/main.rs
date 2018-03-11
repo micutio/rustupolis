@@ -16,7 +16,7 @@ fn main() {
     t_store.out(tup3).unwrap();
 
     print!("inp(Any, Any) -> ");
-    let tup4 = t_store.inp(&tuple![E::Any, E::Any]);
+    let tup4 = t_store.inp(&tuple![E::S("Hello".to_string()), E::Any]);
 
     match tup4.unwrap() {
         Some(x) => {
