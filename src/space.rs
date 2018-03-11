@@ -1,3 +1,8 @@
+//! Module Space
+//!
+//! A space combines a store and concurrent matching to allow for searching
+//! tuples containing wildcards.
+
 extern crate futures;
 use futures::{Poll, Sink};
 use futures::future::FutureResult;
@@ -9,6 +14,7 @@ use store::Store;
 use tuple::Tuple;
 use wildcard;
 
+/// Matchings can either be pending or completed.
 pub enum Match {
     Done(FutureResult<Option<Tuple>, Error>),
     Pending(Receiver<Tuple>),

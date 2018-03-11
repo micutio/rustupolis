@@ -1,3 +1,9 @@
+//! Module Store
+//!
+//! A Store is an associative memory which stores and retrieves tuples.
+//! Any data structure that implements the store trait can be used for storing
+//! tuples.
+
 use std::collections::BTreeSet;
 
 use tuple::Tuple;
