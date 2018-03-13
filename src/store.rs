@@ -1,8 +1,7 @@
 //! Module Store
 //!
 //! A Store is an associative memory which stores and retrieves tuples.
-//! Any data structure that implements the store trait can be used for storing
-//! tuples.
+//! Any data structure that implements the store trait can be used for storing tuples.
 
 use std::collections::BTreeSet;
 
@@ -33,7 +32,10 @@ impl SimpleStore {
     }
 }
 
+/// Implements the store trait for SimpleStore.
 impl Store for SimpleStore {
+
+    /// Insert the tuple into the space if it is defined.
     fn out(&mut self, tup: Tuple) -> Result<()> {
         if !tup.is_defined() {
             bail!("cannot write an undefined tuple");
@@ -42,6 +44,8 @@ impl Store for SimpleStore {
         Ok(())
     }
 
+    /// Returns a copy of the tuple if it is defined and in the space.
+    /// Otherwise look for any tuple that matches tup and return a copy.
     fn rdp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
         if tup.is_defined() && self.0.contains(tup) {
             return Ok(Some(tup.clone()));
@@ -54,6 +58,8 @@ impl Store for SimpleStore {
         Ok(None)
     }
 
+    /// Returns a tuple and take it out of the space if it is defined and in the space.
+    /// Otherwise look for any tuple that matches tup, take it out of the space and return it.
     fn inp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
         if tup.is_defined() {
             return Ok(self.0.take(tup));

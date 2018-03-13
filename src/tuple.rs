@@ -44,8 +44,8 @@ impl Eq for E {}
 impl Ord for E {
     /// Tuple elements have a well-defined ordering. Ordering among values of the same variant is
     /// consistent with its contained type. Ordering among variants of different types is
-    /// mathematically and logically arbitrary but strongly consistent for the purpose of storage and
-    /// retrieval in data structures.
+    /// mathematically and logically arbitrary but strongly consistent for the purpose of storage
+    /// and retrieval in data structures.
     fn cmp(&self, other: &E) -> Ordering {
         match (self, other) {
             (&E::Any, &E::Any) => Ordering::Equal,
@@ -116,30 +116,39 @@ impl E {
 pub struct Tuple(Vec<E>);
 
 impl Tuple {
+
+    /// Creates a new tuple from a given array of elements.
     pub fn new(elements: &[E]) -> Tuple {
         Tuple(elements.to_vec())
     }
 
+    /// Creates a new tuple from a givne vector of elements.
     pub fn from_vec(v: Vec<E>) -> Tuple {
         Tuple(v)
     }
 
+    /// Returns a reference to the first element of the tuple.
     pub fn first(&self) -> &E {
         &self.0[0]
     }
 
+    /// Returns a tuple of all but the first element of the original tuple.
     pub fn rest(&self) -> Tuple {
         Tuple::new(&self.0[1..])
     }
 
+    /// Returns true if the tuple is empty, false otherwise.
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
+    /// Returns true if all elements are defined, i.e: none of them are wildcards.
+    /// Returns false if the tuple contains any wildcards.
     pub fn is_defined(&self) -> bool {
         self.0.iter().all(|ref x| x.is_defined())
     }
 
+    /// Returns true if this tuple matches the other.
     pub fn matches(&self, other: &Tuple) -> bool {
         (self.is_empty() == other.is_empty())
             && self.0
@@ -148,6 +157,7 @@ impl Tuple {
                 .all(|(ref x, ref y): (&E, &E)| x.matches(y))
     }
 
+    /// Returns a range over this tuple.
     pub fn range(&self) -> (Bound<Tuple>, Bound<Tuple>) {
         if self.is_defined() {
             (Bound::Included(self.clone()), Bound::Excluded(self.clone()))
