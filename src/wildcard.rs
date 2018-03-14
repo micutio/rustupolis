@@ -10,8 +10,9 @@ pub enum Node<T> {
     Leaf(Option<T>),
 }
 
-/// A wildcard tree that can insert and take values associated with a pending wildcard. Used by
-/// Space for coordination.
+/// An arena-based wildcard tree that can insert and take values
+/// associated with a pending wildcard.
+/// Used by Space for coordination.
 pub struct Tree<T> {
     arena: Arena<Node<T>>,
     root_id: NodeId,
@@ -27,6 +28,8 @@ impl<T> Tree<T> {
         }
     }
 
+    /// Public interface for inserting an item into the wildcard tree,
+    /// along a tuple 'path'.
     pub fn insert(&mut self, tup: Tuple, item: T) -> Result<(), Error> {
         debug!("insert {:?}", tup);
         let id = self.root_id.clone();
@@ -35,6 +38,7 @@ impl<T> Tree<T> {
 
     fn do_insert(&mut self, id: NodeId, tup: Tuple, item: T) -> Result<(), Error> {
         trace!("do_insert {:?} {:?}", id, tup);
+        // If we have an empty tuple, insert the item in a new leaf node of NodeId.
         if tup.is_empty() {
             let child_id = self.arena.new_node(Node::Leaf(Some(item)));
             id.append(child_id, &mut self.arena)
@@ -42,12 +46,15 @@ impl<T> Tree<T> {
             trace!("do_insert appending {:?} child of {:?}", child_id, id);
             return Ok(());
         }
+        // If the tuple is not empty, look for a child node whose id matches
+        // the first element of the tuple. If we can't find it, we create a new child node.
         let next = id.children(&self.arena)
             .filter(|child_id| match self.arena[*child_id].data {
                 Node::Path(ref e) => e == tup.first(),
                 _ => false,
             })
             .next();
+        // Finally continue inserting with the rest of the tuple.
         match next {
             Some(id) => self.do_insert(id, tup.rest(), item),
             None => {
@@ -60,6 +67,8 @@ impl<T> Tree<T> {
         }
     }
 
+    /// Public interface for retrieving an item out of the wildcard tree,
+    /// from a tuple 'path'.
     pub fn take(&mut self, tup: Tuple) -> Option<T> {
         debug!("take {:?}", tup);
         let id = self.root_id.clone();

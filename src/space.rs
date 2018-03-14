@@ -32,6 +32,7 @@ impl Future for Match {
     }
 }
 
+/// Space encapsulates the store and a wildcard tree.
 pub struct Space<T: Store> {
     store: T,
     pending: wildcard::Tree<Sender<Tuple>>,
@@ -48,6 +49,8 @@ where
         }
     }
 
+    /// Inserts a tuple into the store and returns a match that is
+    /// either still pending or done.
     pub fn in_(&mut self, tup: Tuple) -> Match {
         match self.store.inp(&tup) {
             Ok(None) => {
