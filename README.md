@@ -18,12 +18,12 @@ upon the previous by adding or refining features to achieve the next milestone.
 
 ### Milestones
 
-1. Local tuple space for storing tuples and retrieving them via pattern matching
-2. Local tuple space with multi-threaded and concurrent access
-3. Remote tuple space server, accessible via network sockets
-4. Distributed tuple space on multiple servers, accessible via network
-5. 'Space of spaces', tuples can be tuple spaces themselves
+- [x] Local tuple space for storing tuples and retrieving them via pattern matching
+- [x] Local tuple space with multi-threaded and concurrent access
+- [ ] Remote tuple space server, accessible via network sockets
+- [ ] Distributed tuple space on multiple servers, accessible via network
+- [ ] 'Space of spaces', tuples can be tuple spaces themselves
 
 ## Current Version
 
-alpha 0.0.1
+alpha 0.0.2
