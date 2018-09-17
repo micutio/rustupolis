@@ -24,9 +24,9 @@ fn test_out() {
 #[test]
 fn test_rdp() {
     let mut ss = SimpleStore::new();
-    let tup1 = tuple![E::D(3.14), E::I(123)];
-    let tup2 = tuple![E::D(3.14), E::Any];
-    let tup3 = tuple![E::D(3.14), E::Any];
+    let tup1 = tuple![E::D(3.143), E::I(123)];
+    let tup2 = tuple![E::D(3.143), E::Any];
+    let tup3 = tuple![E::D(3.143), E::Any];
 
     ss.out(tup1).unwrap();
     let tup4 = ss.rdp(&tup2).unwrap().unwrap();
@@ -37,9 +37,9 @@ fn test_rdp() {
 #[test]
 fn test_inp() {
     let mut ss = SimpleStore::new();
-    let tup1 = tuple![E::D(3.14), E::I(123)];
-    let tup2 = tuple![E::D(3.14), E::Any];
-    let tup3 = tuple![E::D(3.14), E::Any];
+    let tup1 = tuple![E::D(3.143), E::I(123)];
+    let tup2 = tuple![E::D(3.143), E::Any];
+    let tup3 = tuple![E::D(3.143), E::Any];
 
     ss.out(tup1).unwrap();
     assert_eq!(ss.len(), 1);
