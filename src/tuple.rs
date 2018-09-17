@@ -84,12 +84,12 @@ impl E {
     /// Returns true if one or more elements are the wildcard E::Any, recursively.
     pub fn is_defined(&self) -> bool {
         match self {
-            &E::I(_) => true,
-            &E::D(_) => true,
-            &E::S(_) => true,
-            &E::Any => false,
-            &E::None => false,
-            &E::T(ref t) => t.is_defined(),
+            E::I(_) => true,
+            E::D(_) => true,
+            E::S(_) => true,
+            E::Any => false,
+            E::None => false,
+            E::T(ref t) => t.is_defined(),
         }
     }
 
@@ -97,9 +97,11 @@ impl E {
     /// respective position are equal, or one or both of them in a given position is the wildcard
     /// E::Any.
     pub fn matches(&self, other: &E) -> bool {
+        // TODO: Don't use hard-coded error.
+        let error = 0.001;
         match (self, other) {
             (&E::I(ref a), &E::I(ref b)) => a == b,
-            (&E::D(ref a), &E::D(ref b)) => a == b,
+            (&E::D(ref a), &E::D(ref b)) => (a - b).abs() < error,
             (&E::S(ref a), &E::S(ref b)) => a == b,
             (&E::T(ref a), &E::T(ref b)) => a.matches(b),
             (&E::Any, &E::Any) => false,
