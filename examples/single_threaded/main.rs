@@ -1,6 +1,7 @@
-extern crate rand;
 #[macro_use]
 extern crate rustupolis;
+
+extern crate rand;
 
 use rustupolis::error::Result;
 use rustupolis::tuple::E;
