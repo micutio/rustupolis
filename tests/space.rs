@@ -1,15 +1,15 @@
+#[macro_use]
+extern crate rustupolis;
+use rustupolis::space::Space;
+use rustupolis::store::SimpleStore;
+use rustupolis::tuple::E;
+
 use std::sync::Arc;
 
 extern crate futures;
 use futures::Async;
 use futures::prelude::*;
 use futures::task::Unpark;
-
-#[macro_use]
-extern crate rustupolis;
-use rustupolis::space::Space;
-use rustupolis::store::SimpleStore;
-use rustupolis::tuple::E;
 
 #[test]
 fn test_in() {
