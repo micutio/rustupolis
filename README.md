@@ -2,8 +2,7 @@
 
 An easy to use tuple space library written in Rust.
 
-Also check out rustupolis' sister project [goTupolis](https://github.com/Micutio/goTupolis), a tuple space implementation in Go.
-Both projects are developed in tandem to learn about the Rust and Go languages, as well as the differences in implementing a similar library.
+Also check out rustupolis' sister project [goTupolis](https://github.com/Micutio/goTupolis), a tuple space implementation in Go. Both projects are developed in tandem to learn about the Rust and Go languages, as well as the differences in implementing a similar library.
 
 ## Why Tuple Spaces
 
