@@ -20,7 +20,9 @@ pub trait Store {
 }
 
 /// A simple, naive in-memory implementation of a Store.
+#[derive(Default)]
 pub struct SimpleStore(BTreeSet<Tuple>);
+
 
 impl SimpleStore {
     pub fn new() -> SimpleStore {
@@ -29,6 +31,10 @@ impl SimpleStore {
 
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.len() == 0
     }
 }
 
