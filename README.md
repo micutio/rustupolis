@@ -32,6 +32,7 @@ The tuple space is being implemented iteratively, where each iteration improves 
 
 - [x] local tuple space for storing tuples and retrieving them via pattern matching
 - [x] local tuple space with multi-threaded and concurrent access
+- [ ] permanent storage / backup
 - [ ] remote tuple space server, accessible via network sockets
 - [ ] distributed tuple space on multiple servers, accessible via network
 - [ ] 'space of spaces', tuples can be tuple spaces themselves
