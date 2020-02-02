@@ -2,14 +2,14 @@ extern crate rand;
 #[macro_use]
 extern crate rustupolis;
 
-use std::thread;
 use std::sync::{Arc, Mutex};
+use std::thread;
 
 use rand::{Rng, SeedableRng};
 
 use rustupolis::error::Result;
-use rustupolis::tuple::E;
 use rustupolis::store::{SimpleStore, Store};
+use rustupolis::tuple::E;
 
 fn put_and_read(
     rng: &mut rand::Isaac64Rng,
@@ -30,7 +30,7 @@ fn put_and_read(
             E::S("more content...".to_string()),
         ];
         println!("{:?}", tup);
-        &mut t_store.out(tup)?;
+        t_store.out(tup)?;
     }
 
     for _i in 0..5 {
@@ -55,7 +55,7 @@ fn main() {
         put_and_read(&mut rng, "a", ts1).unwrap();
     });
 
-    let ts2 = t_store.clone();
+    let ts2 = t_store;
     let handle_b = thread::spawn(move || {
         put_and_read(&mut rng, "b", ts2).unwrap();
     });
