@@ -4,10 +4,10 @@
 //! tuples containing wildcards.
 
 extern crate futures;
-use futures::{Poll, Sink};
 use futures::future::FutureResult;
 use futures::prelude::{Future, Stream};
 use futures::sync::mpsc::{channel, Receiver, Sender};
+use futures::{Poll, Sink};
 
 use error::Error;
 use store::Store;
@@ -26,8 +26,8 @@ impl Future for Match {
 
     fn poll(&mut self) -> Poll<Option<Tuple>, Error> {
         match self {
-            &mut Match::Done(ref mut result) => result.poll(),
-            &mut Match::Pending(ref mut rx) => rx.poll().map_err(|()| "receive failed".into()),
+            Match::Done(ref mut result) => result.poll(),
+            Match::Pending(ref mut rx) => rx.poll().map_err(|()| "receive failed".into()),
         }
     }
 }
@@ -44,7 +44,7 @@ where
 {
     pub fn new(store: T) -> Space<T> {
         Space {
-            store: store,
+            store,
             pending: wildcard::Tree::new(),
         }
     }
@@ -79,7 +79,7 @@ where
         }
     }
 
-    pub fn out(&mut self, tup: Tuple) -> Box<Future<Item = (), Error = Error>> {
+    pub fn out(&mut self, tup: Tuple) -> Box<dyn Future<Item = (), Error = Error>> {
         if !tup.is_defined() {
             Box::new(futures::future::err("undefined tuple".into()))
         } else if let Some(tx) = self.pending.take(tup.clone()) {

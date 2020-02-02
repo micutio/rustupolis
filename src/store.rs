@@ -5,8 +5,8 @@
 
 use std::collections::BTreeSet;
 
-use tuple::Tuple;
 use error::Result;
+use tuple::Tuple;
 
 /// A Store is an associative memory which stores and retrieves tuples.
 /// Implementors should only store _defined_ tuples.
@@ -20,6 +20,7 @@ pub trait Store {
 }
 
 /// A simple, naive in-memory implementation of a Store.
+#[derive(Default)]
 pub struct SimpleStore(BTreeSet<Tuple>);
 
 impl SimpleStore {
@@ -30,11 +31,14 @@ impl SimpleStore {
     pub fn len(&self) -> usize {
         self.0.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.len() == 0
+    }
 }
 
 /// Implements the store trait for SimpleStore.
 impl Store for SimpleStore {
-
     /// Insert the tuple into the space if it is defined.
     fn out(&mut self, tup: Tuple) -> Result<()> {
         if !tup.is_defined() {
