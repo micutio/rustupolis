@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 extern crate futures;
 use futures::Async;
-use futures::prelude::*;
+use futures::prelude::{Future};
 use futures::task::Unpark;
 
 /// This test is faulty for now and results in a infinite loop when run with Travis CI.
@@ -16,6 +16,7 @@ use futures::task::Unpark;
 #[ignore]
 #[test]
 fn test_in() {
+/// Tests insertion of tuples into a SimpleStore space.
     let mut sp = Space::new(SimpleStore::new());
     let fin = sp.in_(tuple![E::str("foo"), E::Any]);
     let mut spawn = futures::task::spawn(fin);
