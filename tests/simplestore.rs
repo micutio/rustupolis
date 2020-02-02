@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate rustupolis;
 
-use rustupolis::tuple::E;
 use rustupolis::store::{SimpleStore, Store};
+use rustupolis::tuple::E;
 
 #[test]
 fn test_len() {
@@ -48,7 +48,7 @@ fn test_inp() {
 
     match tup4.unwrap() {
         Some(ref x) => assert!(tup3.matches(x)),
-        None => assert!(false),
+        None => panic!(),
     }
 
     assert_eq!(ss.len(), 0);
@@ -69,7 +69,7 @@ fn test_contains_empty_tuple() {
     ss.out(tup1.clone()).unwrap();
     assert_eq!(ss.inp(&tuple![E::Any]).unwrap(), Some(tup1.clone()));
     ss.out(tup1.clone()).unwrap();
-    assert_eq!(ss.inp(&tuple![E::T(tuple![])]).unwrap(), Some(tup1.clone()));
+    assert_eq!(ss.inp(&tuple![E::T(tuple![])]).unwrap(), Some(tup1));
 }
 
 #[test]
