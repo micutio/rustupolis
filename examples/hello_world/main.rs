@@ -1,15 +1,24 @@
 #[macro_use]
 extern crate rustupolis;
 
-use rustupolis::tuple::E;
 use rustupolis::store::{SimpleStore, Store};
+use rustupolis::tuple::E;
 
 fn main() {
     println!("rustupolis - hello world example");
     let mut t_store = SimpleStore::new();
     let tup1 = tuple![E::S("Hello".to_string()), E::S("World!".to_string())];
-    let tup2 = tuple![E::D(std::f64::consts::PI), E::S("bar".to_string()), E::S("foo".to_string())];
-    let tup3 = tuple![E::S("baz".to_string()), E::D(1.14), E::D(2.14), E::D(std::f64::consts::PI)];
+    let tup2 = tuple![
+        E::D(std::f64::consts::PI),
+        E::S("bar".to_string()),
+        E::S("foo".to_string())
+    ];
+    let tup3 = tuple![
+        E::S("baz".to_string()),
+        E::D(1.14),
+        E::D(2.14),
+        E::D(std::f64::consts::PI)
+    ];
 
     t_store.out(tup1).unwrap();
     t_store.out(tup2).unwrap();
@@ -22,6 +31,6 @@ fn main() {
         Some(x) => {
             println!("{:?}", x);
         }
-        None => assert!(false),
+        None => panic!(),
     }
 }
