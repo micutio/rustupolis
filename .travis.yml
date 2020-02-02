@@ -1,8 +1,8 @@
 language : rust
 rust:
     - stable
-    - beta
-    - nightly
-matrix:
-    allow_features:
-        - rust: nightly
+    #- beta
+    #- nightly
+#matrix:
+#    allow_features:
+#        - rust: nightly

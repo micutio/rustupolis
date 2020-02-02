@@ -23,6 +23,7 @@ pub trait Store {
 #[derive(Default)]
 pub struct SimpleStore(BTreeSet<Tuple>);
 
+
 impl SimpleStore {
     pub fn new() -> SimpleStore {
         SimpleStore(BTreeSet::new())
