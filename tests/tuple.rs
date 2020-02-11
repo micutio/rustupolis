@@ -105,19 +105,19 @@ fn nested_compare_with_empty() {
     assert!(!tuple![
         E::T(tuple![E::str("command"), E::str("wobble")]),
         E::T(tuple![E::I(10)]),
-    ].matches(&tuple![
+    ]
+    .matches(&tuple![
         E::T(tuple![E::str("command"), E::Any]),
         E::T(tuple![])
     ]));
-    assert!(
-        tuple![
-            E::T(tuple![E::str("command"), E::str("wobble")]),
-            E::T(tuple![]),
-        ].matches(&tuple![
-            E::T(tuple![E::str("command"), E::Any]),
-            E::T(tuple![])
-        ])
-    );
+    assert!(tuple![
+        E::T(tuple![E::str("command"), E::str("wobble")]),
+        E::T(tuple![]),
+    ]
+    .matches(&tuple![
+        E::T(tuple![E::str("command"), E::Any]),
+        E::T(tuple![])
+    ]));
     assert!(
         tuple![E::T(tuple![E::str("command"), E::str("wobble")]), E::Any,].matches(&tuple![
             E::T(tuple![E::str("command"), E::Any]),

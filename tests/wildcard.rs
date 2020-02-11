@@ -40,7 +40,8 @@ fn nested_matching() {
     t.insert(
         tuple![E::T(tuple![E::str("command"), E::Any]), E::T(tuple![])],
         "doit".to_string(),
-    ).unwrap();
+    )
+    .unwrap();
     assert_eq!(t.take(tuple![E::str("nonsense")]), None);
     assert_eq!(
         t.take(tuple![

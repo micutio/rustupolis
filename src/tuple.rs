@@ -118,7 +118,6 @@ impl E {
 pub struct Tuple(Vec<E>);
 
 impl Tuple {
-
     /// Creates a new tuple from a given array of elements.
     pub fn new(elements: &[E]) -> Tuple {
         Tuple(elements.to_vec())
@@ -153,7 +152,8 @@ impl Tuple {
     /// Returns true if this tuple matches the other.
     pub fn matches(&self, other: &Tuple) -> bool {
         (self.is_empty() == other.is_empty())
-            && self.0
+            && self
+                .0
                 .iter()
                 .zip(other.0.iter())
                 .all(|(ref x, ref y): (&E, &E)| x.matches(y))

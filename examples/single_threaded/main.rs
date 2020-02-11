@@ -4,8 +4,8 @@ extern crate rustupolis;
 extern crate rand;
 
 use rustupolis::error::Result;
-use rustupolis::tuple::E;
 use rustupolis::store::{SimpleStore, Store};
+use rustupolis::tuple::E;
 
 use rand::{Rng, SeedableRng};
 
