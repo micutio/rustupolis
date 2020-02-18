@@ -18,14 +18,20 @@ path = "src/lib.rs"
 test = true
 doctest = true
 
+[[bin]]
+name = "rustupolis_cli"
+path = "src/bin.rs"
+test = true
+doctest = true
+
 [dependencies]
-clap = "2"
-error-chain = "0.11"
-futures = "0.1"
+clap = "2.33.0"
+error-chain = "0.12.1"
+futures = "0.3.4"
 indextree-ng = "1.0.5"
-log = "0.3.8"
-rand = "0.4"
-env_logger = "0.4"
+log = "0.4.8"
+rand = "0.7.3"
+env_logger = "0.7.1"
 
 [[example]]
 name = "hello_world"
