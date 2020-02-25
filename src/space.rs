@@ -3,11 +3,10 @@
 //! A space combines a store and concurrent matching to allow for searching
 //! tuples containing wildcards.
 
-extern crate futures;
-use futures::future::FutureResult;
-use futures::prelude::{Future, Stream};
-use futures::sync::mpsc::{channel, Receiver, Sender};
-use futures::{Poll, Sink};
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::mpsc::{channel, Receiver, Sender};
+use std::task::{Context, Poll};
 
 use error::Error;
 use store::Store;
@@ -16,18 +15,17 @@ use wildcard;
 
 /// Matchings can either be pending or completed.
 pub enum Match {
-    Done(FutureResult<Option<Tuple>, Error>),
+    Done(Result<Option<Tuple>, Error>),
     Pending(Receiver<Tuple>),
 }
 
 impl Future for Match {
-    type Item = Option<Tuple>;
-    type Error = Error;
+    type Output = Option<Tuple>;
 
-    fn poll(&mut self) -> Poll<Option<Tuple>, Error> {
-        match self {
-            Match::Done(ref mut result) => result.poll(),
-            Match::Pending(ref mut rx) => rx.poll().map_err(|()| "receive failed".into()),
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        match *self {
+            Match::Done(ref result) => Poll::Ready(result.unwrap()),
+            Match::Pending(ref mut rx) => Poll::Pending, //rx.poll().map_err(|()| "receive failed".into()),
         }
     }
 }
@@ -54,34 +52,35 @@ where
     pub fn in_(&mut self, tup: Tuple) -> Match {
         match self.store.inp(&tup) {
             Ok(None) => {
-                let (tx, rx) = channel(0);
+                let (tx, rx) = channel();
                 if let Err(e) = self.pending.insert(tup.clone(), tx) {
-                    Match::Done(FutureResult::from(Err(Error::with_chain(e, "send failed"))))
+                    Match::Done(Result::from(Err(Error::with_chain(e, "send failed"))))
                 } else {
                     Match::Pending(rx)
                 }
             }
-            result => Match::Done(FutureResult::from(result)),
+            result => Match::Done(Result::from(result)),
         }
     }
 
     pub fn rd(&mut self, tup: Tuple) -> Match {
         match self.store.rdp(&tup) {
             Ok(None) => {
-                let (tx, rx) = channel(0);
+                let (tx, rx) = channel();
                 if let Err(e) = self.pending.insert(tup.clone(), tx) {
-                    Match::Done(FutureResult::from(Err(Error::with_chain(e, "send failed"))))
+                    Match::Done(Result::from(Err(Error::with_chain(e, "send failed"))))
                 } else {
                     Match::Pending(rx)
                 }
             }
-            result => Match::Done(FutureResult::from(result)),
+            result => Match::Done(Result::from(result)),
         }
     }
 
-    pub fn out(&mut self, tup: Tuple) -> Box<dyn Future<Item = (), Error = Error>> {
+    pub fn out(&mut self, tup: Tuple) -> Box<dyn Future<Output = ()>> {
         if !tup.is_defined() {
-            Box::new(futures::future::err("undefined tuple".into()))
+            // Box::new(futures::future::err("undefined tuple".into()))
+            Box::new(Result::from_error("undefined tuple"))
         } else if let Some(tx) = self.pending.take(tup.clone()) {
             Box::new(
                 tx.send(tup)
@@ -90,7 +89,7 @@ where
             )
         } else {
             let result = self.store.out(tup);
-            Box::new(futures::future::result(result))
+            Box::new(futures::future::Result(result))
         }
     }
 }
