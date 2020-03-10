@@ -47,8 +47,7 @@ where
         }
     }
 
-    /// Inserts a tuple into the store and returns a match that is
-    /// either still pending or done.
+    /// Find a matching tuple, retrieve and remove it from the space.
     pub fn in_(&mut self, tup: Tuple) -> Match {
         match self.store.inp(&tup) {
             Ok(None) => {
@@ -63,6 +62,7 @@ where
         }
     }
 
+    /// Find a matching tuple, retrieve but NOT remove it from the space.
     pub fn rd(&mut self, tup: Tuple) -> Match {
         match self.store.rdp(&tup) {
             Ok(None) => {
@@ -77,6 +77,7 @@ where
         }
     }
 
+    /// Insert a given tuple into the space.
     pub fn out(&mut self, tup: Tuple) -> Box<dyn Future<Output = ()>> {
         if !tup.is_defined() {
             // Box::new(futures::future::err("undefined tuple".into()))
