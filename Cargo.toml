@@ -26,8 +26,8 @@ doctest = true
 
 [dependencies]
 clap = "2.33.0"
-error-chain = "0.12.1"
-futures = "0.3.4"
+error-chain = "0.12.2"
+futures = "0.3.5"
 indextree-ng = "1.0.5"
 log = "0.4.8"
 rand = "0.7.3"
