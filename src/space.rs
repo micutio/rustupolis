@@ -22,10 +22,15 @@ pub enum Match {
 impl Future for Match {
     type Output = Option<Tuple>;
 
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        match *self {
-            Match::Done(ref result) => Poll::Ready(result.unwrap()),
-            Match::Pending(ref mut rx) => Poll::Pending, //rx.poll().map_err(|()| "receive failed".into()),
+    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
+        match &*self {
+            Match::Done(Ok(result)) => Poll::Ready(result.clone()),
+            Match::Done(Err(e)) => {
+                eprintln!("error polling Match: {:?}", e);
+                Poll::from(None)
+            }
+            // Match::Pending(ref rx) => rx.poll().map_err(|()| "receive failed".into()),
+            Match::Pending(_) => Poll::Pending,
         }
     }
 }
@@ -53,12 +58,12 @@ where
             Ok(None) => {
                 let (tx, rx) = channel();
                 if let Err(e) = self.pending.insert(tup.clone(), tx) {
-                    Match::Done(Result::from(Err(Error::with_chain(e, "send failed"))))
+                    Match::Done(Err(Error::with_chain(e, "send failed")))
                 } else {
                     Match::Pending(rx)
                 }
             }
-            result => Match::Done(Result::from(result)),
+            result => Match::Done(result),
         }
     }
 
@@ -68,29 +73,30 @@ where
             Ok(None) => {
                 let (tx, rx) = channel();
                 if let Err(e) = self.pending.insert(tup.clone(), tx) {
-                    Match::Done(Result::from(Err(Error::with_chain(e, "send failed"))))
+                    Match::Done(Err(Error::with_chain(e, "send failed")))
                 } else {
                     Match::Pending(rx)
                 }
             }
-            result => Match::Done(Result::from(result)),
+            result => Match::Done(result),
         }
     }
 
     /// Insert a given tuple into the space.
-    pub fn out(&mut self, tup: Tuple) -> Box<dyn Future<Output = ()>> {
+    pub fn out(&mut self, tup: Tuple) -> Box<dyn Future<Output = Result<(), Error>>> {
         if !tup.is_defined() {
             // Box::new(futures::future::err("undefined tuple".into()))
-            Box::new(Result::from_error("undefined tuple"))
+            Box::new(futures::future::err(Error::from("undefined tuple")))
         } else if let Some(tx) = self.pending.take(tup.clone()) {
-            Box::new(
-                tx.send(tup)
-                    .map(|_| ())
-                    .map_err(|e| Error::with_chain(e, "send failed")),
-            )
+            let send_attempt: Result<(), Error> = tx
+                .send(tup)
+                .map(|_| ())
+                .map_err(|e| Error::with_chain(e, "send failed"));
+
+            Box::new(futures::future::ready(send_attempt))
         } else {
             let result = self.store.out(tup);
-            Box::new(futures::future::Result(result))
+            Box::new(futures::future::ready(result))
         }
     }
 }
