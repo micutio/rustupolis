@@ -3,6 +3,7 @@
 //! A space combines a store and concurrent matching to allow for searching
 //! tuples containing wildcards.
 
+use futures::future;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::mpsc::{channel, Receiver, Sender};
@@ -52,7 +53,7 @@ where
         }
     }
 
-    /// Find a matching tuple, retrieve and remove it from the space.
+    /// Find a matching tuple, retrieve AND remove it from the space.
     pub fn tuple_in(&mut self, tup: Tuple) -> Match {
         match self.store.inp(&tup) {
             Ok(None) => {
@@ -82,21 +83,22 @@ where
         }
     }
 
-    /// Insert a given tuple into the space.
-    pub fn tuple_out(&mut self, tup: Tuple) -> Box<dyn Future<Output = Result<(), Error>>> {
+    /// Inserts a tuple into the store and returns a match that is
+    /// either still pending or done.
+    pub fn tuple_out(&mut self, tup: Tuple) -> Pin<Box<dyn Future<Output = Result<(), Error>>>> {
         if !tup.is_defined() {
             // Box::new(futures::future::err("undefined tuple".into()))
-            Box::new(futures::future::err(Error::from("undefined tuple")))
+            Box::pin(future::err(Error::from("undefined tuple")))
         } else if let Some(tx) = self.pending.take(tup.clone()) {
-            let send_attempt: Result<(), Error> = tx
+            let send_attempt = tx
                 .send(tup)
                 .map(|_| ())
                 .map_err(|e| Error::with_chain(e, "send failed"));
 
-            Box::new(futures::future::ready(send_attempt))
+            Box::pin(future::ready(send_attempt))
         } else {
             let result = self.store.out(tup);
-            Box::new(futures::future::ready(result))
+            Box::pin(future::ready(result))
         }
     }
 }

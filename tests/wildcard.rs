@@ -8,7 +8,7 @@ use rustupolis::wildcard::Tree;
 
 #[test]
 fn give_and_take() {
-    let _ = env_logger::init();
+    // env_logger::init();
     let mut t = Tree::new();
     t.insert(tuple![E::Any], 1).unwrap();
     // Wrong shape
@@ -22,7 +22,7 @@ fn give_and_take() {
 
 #[test]
 fn give_more() {
-    let _ = env_logger::init();
+    // env_logger::init();
     let mut t = Tree::new();
     t.insert(tuple![E::Any], 1).unwrap();
     t.insert(tuple![E::Any], 1).unwrap();
@@ -35,7 +35,7 @@ fn give_more() {
 
 #[test]
 fn nested_matching() {
-    let _ = env_logger::init();
+    // env_logger::init();
     let mut t = Tree::new();
     t.insert(
         tuple![E::T(tuple![E::str("command"), E::Any]), E::T(tuple![])],
