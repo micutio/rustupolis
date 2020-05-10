@@ -1,18 +1,22 @@
 extern crate rand;
+extern crate rand_isaac;
+
 #[macro_use]
 extern crate rustupolis;
 
+#[macro_use]
 use std::sync::{Arc, Mutex};
 use std::thread;
 
 use rand::{Rng, SeedableRng};
+use rand_isaac::isaac64::Isaac64Rng;
 
 use rustupolis::error::Result;
 use rustupolis::store::{SimpleStore, Store};
 use rustupolis::tuple::E;
 
 fn put_and_read(
-    rng: &mut rand::Isaac64Rng,
+    rng: &mut rand_isaac::isaac64::Isaac64Rng,
     id: &str,
     t_store: std::sync::Arc<std::sync::Mutex<rustupolis::store::SimpleStore>>,
 ) -> Result<()> {
@@ -43,21 +47,26 @@ fn put_and_read(
 }
 
 fn main() {
-    let seed: &[_] = &[1, 2, 3, 4];
-    let mut rng = rand::Isaac64Rng::new_unseeded();
-    rng.reseed(seed);
+    let seed: [u8; 32] = [
+        1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6,
+        7, 8,
+    ];
+    let mut rng1 = Isaac64Rng::from_seed(seed);
+    let mut rng2 = Isaac64Rng::from_seed(seed);
+
+    // rng.reseed(seed);
 
     println!("rustupolis - multi threaded example");
 
     let t_store = Arc::new(Mutex::new(SimpleStore::new()));
     let ts1 = t_store.clone();
     let handle_a = thread::spawn(move || {
-        put_and_read(&mut rng, "a", ts1).unwrap();
+        put_and_read(&mut rng1, "a", ts1).unwrap();
     });
 
     let ts2 = t_store;
     let handle_b = thread::spawn(move || {
-        put_and_read(&mut rng, "b", ts2).unwrap();
+        put_and_read(&mut rng2, "b", ts2).unwrap();
     });
 
     let res_a = handle_a.join();
