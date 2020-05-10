@@ -1,3 +1,6 @@
+//! This example demonstrates insertion and reading of a number of random tuples into the tuple
+//! space. It is done multi-threaded to show the thread-safety of the tuple space.
+
 extern crate rand;
 extern crate rand_isaac;
 

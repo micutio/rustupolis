@@ -1,3 +1,6 @@
+//! This simple example demonstrates inserting tuples into the tuple space and retrieving them
+//! using wildcards.
+
 #[macro_use]
 extern crate rustupolis;
 
@@ -20,10 +23,12 @@ fn main() {
         E::D(std::f64::consts::PI)
     ];
 
+    // push all tuples out into the space
     t_store.out(tup1).unwrap();
     t_store.out(tup2).unwrap();
     t_store.out(tup3).unwrap();
 
+    // look for a tuple that contains the string 'Hello"
     print!("inp(Any, Any) -> ");
     let tup4 = t_store.inp(&tuple![E::S("Hello".to_string()), E::Any]);
 
