@@ -53,7 +53,7 @@ where
     }
 
     /// Find a matching tuple, retrieve and remove it from the space.
-    pub fn in_(&mut self, tup: Tuple) -> Match {
+    pub fn tuple_in(&mut self, tup: Tuple) -> Match {
         match self.store.inp(&tup) {
             Ok(None) => {
                 let (tx, rx) = channel();
@@ -68,7 +68,7 @@ where
     }
 
     /// Find a matching tuple, retrieve but NOT remove it from the space.
-    pub fn rd(&mut self, tup: Tuple) -> Match {
+    pub fn tuple_rd(&mut self, tup: Tuple) -> Match {
         match self.store.rdp(&tup) {
             Ok(None) => {
                 let (tx, rx) = channel();
@@ -83,7 +83,7 @@ where
     }
 
     /// Insert a given tuple into the space.
-    pub fn out(&mut self, tup: Tuple) -> Box<dyn Future<Output = Result<(), Error>>> {
+    pub fn tuple_out(&mut self, tup: Tuple) -> Box<dyn Future<Output = Result<(), Error>>> {
         if !tup.is_defined() {
             // Box::new(futures::future::err("undefined tuple".into()))
             Box::new(futures::future::err(Error::from("undefined tuple")))
