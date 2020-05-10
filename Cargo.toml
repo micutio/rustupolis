@@ -2,6 +2,7 @@
 name = "rustupolis"
 version = "0.0.1"
 authors = ["Michael Wagner <wagner.mchl@googlemail.com>", "Casey Marshall <github@cmars.tech>"]
+edition = "2018"
 description = "An implementation of the tuple space data structure in Rust."
 repository = "https://github.com/micutio/rustupolis"
 readme = "README.md"
