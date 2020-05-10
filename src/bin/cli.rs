@@ -8,8 +8,6 @@
 
 extern crate rustupolis;
 
-mod cli;
-
 fn main() {
     println!("Rustupolis CLI");
 }

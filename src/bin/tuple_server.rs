@@ -8,8 +8,6 @@
 
 extern crate rustupolis;
 
-mod tuple_server;
-
 fn main() {
     println!("Rustupolis Server");
     println!("by Michael Wagner");
