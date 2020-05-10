@@ -1,8 +1,8 @@
 extern crate indextree_ng;
 use indextree_ng::{Arena, NodeId};
 
-use error::{Error, ResultExt};
-use tuple::{Tuple, E};
+use crate::error::{Error, ResultExt};
+use crate::tuple::{Tuple, E};
 
 pub enum Node<T> {
     Root,

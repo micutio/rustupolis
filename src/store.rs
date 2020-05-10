@@ -5,8 +5,8 @@
 
 use std::collections::BTreeSet;
 
-use error::Result;
-use tuple::Tuple;
+use crate::error::Result;
+use crate::tuple::Tuple;
 
 /// A Store is an associative memory which stores and retrieves tuples.
 /// Implementors should only store _defined_ tuples.

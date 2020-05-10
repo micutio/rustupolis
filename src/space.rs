@@ -8,10 +8,10 @@ use std::pin::Pin;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::task::{Context, Poll};
 
-use error::Error;
-use store::Store;
-use tuple::Tuple;
-use wildcard;
+use crate::error::Error;
+use crate::store::Store;
+use crate::tuple::Tuple;
+use crate::wildcard;
 
 /// Matchings can either be pending or completed.
 pub enum Match {
