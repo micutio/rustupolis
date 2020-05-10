@@ -2,7 +2,7 @@
 name = "rustupolis"
 version = "0.0.1"
 authors = ["Michael Wagner <wagner.mchl@googlemail.com>", "Casey Marshall <github@cmars.tech>"]
-edition = "2018"
+# edition = "2018"
 description = "An implementation of the tuple space data structure in Rust."
 repository = "https://github.com/micutio/rustupolis"
 readme = "README.md"
@@ -21,7 +21,13 @@ doctest = true
 
 [[bin]]
 name = "rustupolis_cli"
-path = "src/bin.rs"
+path = "src/bin/cli.rs"
+test = true
+doctest = true
+
+[[bin]]
+name = "rustupolis_tuple_server"
+path = "src/bin/tuple_server.rs"
 test = true
 doctest = true
 
@@ -32,6 +38,7 @@ futures = "0.3.5"
 indextree-ng = "1.0.5"
 log = "0.4.8"
 rand = "0.7.3"
+rand_isaac = "0.2.0"
 env_logger = "0.7.1"
 
 [[example]]
