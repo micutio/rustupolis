@@ -1,10 +1,7 @@
 //! # Rustupolis CLI
 //!
-//! A tuple space server implementation for Rust.
-//!
-//! TODO: Add more information
-//!
-//! This binary does ...
+//! A tuple space server implementation for Rust that allows to create remotely accessible tuple
+//! spaces
 
 extern crate rustupolis;
 
