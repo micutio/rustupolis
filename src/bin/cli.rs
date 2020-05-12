@@ -28,7 +28,7 @@ fn main() {
     use self::RequiredAction::*;
     loop {
         print!("> ");
-        stdout.flush().expect("error flushing");
+        stdout.flush().expect("failed to flush stdout");
         stdin.read_line(&mut input).expect("failed to read input");
         let required_action = process_input(&input.trim());
         // reset input
