@@ -14,30 +14,50 @@ extern crate rustupolis;
 use std::io;
 use std::io::Write;
 
+fn main() {
+    println!("Rustupolis CLI");
+    let mut cli = Cli::new(io::stdin(), io::stdout());
+    cli.run()
+}
+
 enum RequiredAction {
     CLOSE,
     DETACH,
     NONE,
 }
 
-fn main() {
-    println!("Rustupolis CLI");
-    let stdin = io::stdin();
-    let mut stdout = io::stdout();
-    let mut input = String::new();
-    use self::RequiredAction::*;
-    loop {
-        print!("> ");
-        stdout.flush().expect("failed to flush stdout");
-        stdin.read_line(&mut input).expect("failed to read input");
-        let required_action = process_input(&input.trim());
-        // reset input
-        input.clear();
-        // TODO: implement proper actions
-        match required_action {
-            CLOSE => break,
-            DETACH => break,
-            NONE => {}
+struct Cli {
+    stdin: io::Stdin,
+    stdout: io::Stdout,
+    input: String,
+}
+
+impl Cli {
+    fn new(stdin: io::Stdin, stdout: io::Stdout) -> Cli {
+        Cli {
+            stdin,
+            stdout,
+            input: String::new(),
+        }
+    }
+
+    fn run(&mut self) {
+        use self::RequiredAction::*;
+        loop {
+            print!("> ");
+            self.stdout.flush().expect("failed to flush stdout");
+            self.stdin
+                .read_line(&mut self.input)
+                .expect("failed to read input");
+            let required_action = process_input(self.input.trim());
+            // reset input
+            self.input.clear();
+            // TODO: implement proper actions
+            match required_action {
+                CLOSE => break,
+                DETACH => break,
+                NONE => {}
+            }
         }
     }
 }
