@@ -76,6 +76,19 @@ impl Ord for E {
     }
 }
 
+impl ToString for E {
+    fn to_string(&self) -> String {
+        match self {
+            E::I(ref i) => i.to_string(),
+            E::D(ref d) => d.to_string(),
+            E::S(ref s) => s.to_string(),
+            E::T(ref t) => t.to_string(),
+            E::Any => "_".to_string(),
+            E::None => "nil".to_string(),
+        }
+    }
+}
+
 impl E {
     pub fn str<S: Into<String>>(s: S) -> E {
         E::S(s.into())
@@ -117,13 +130,26 @@ impl E {
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub struct Tuple(Vec<E>);
 
+impl ToString for Tuple {
+    fn to_string(&self) -> String {
+        format!(
+            "({})",
+            self.0
+                .iter()
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>()
+                .join(",")
+        )
+    }
+}
+
 impl Tuple {
     /// Creates a new tuple from a given array of elements.
     pub fn new(elements: &[E]) -> Tuple {
         Tuple(elements.to_vec())
     }
 
-    /// Creates a new tuple from a givne vector of elements.
+    /// Creates a new tuple from a given vector of elements.
     pub fn from_vec(v: Vec<E>) -> Tuple {
         Tuple(v)
     }
