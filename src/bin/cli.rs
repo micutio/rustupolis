@@ -9,13 +9,19 @@
 //  - input parsing loop
 //  - processing of parsed commands
 
+#[macro_use]
 extern crate rustupolis;
 
 use std::io;
 use std::io::Write;
 
+use rustupolis::space::Space;
+use rustupolis::store::SimpleStore;
+use rustupolis::tuple::E;
+
 fn main() {
     println!("Rustupolis CLI");
+
     let mut cli = Cli::new(io::stdin(), io::stdout());
     cli.run()
 }
@@ -29,7 +35,7 @@ enum RequiredAction {
 struct Cli {
     stdin: io::Stdin,
     stdout: io::Stdout,
-    input: String,
+    tuplespace: Option<Space<SimpleStore>>,
 }
 
 impl Cli {
@@ -37,21 +43,22 @@ impl Cli {
         Cli {
             stdin,
             stdout,
-            input: String::new(),
+            tuplespace: None,
         }
     }
 
     fn run(&mut self) {
         use self::RequiredAction::*;
+        let mut input = String::new();
         loop {
             print!("> ");
             self.stdout.flush().expect("failed to flush stdout");
             self.stdin
-                .read_line(&mut self.input)
+                .read_line(&mut input)
                 .expect("failed to read input");
-            let required_action = process_input(self.input.trim());
+            let required_action = self.process_input(input.trim());
             // reset input
-            self.input.clear();
+            input.clear();
             // TODO: implement proper actions
             match required_action {
                 CLOSE => break,
@@ -60,48 +67,62 @@ impl Cli {
             }
         }
     }
-}
 
-/// User input should always consist of a pre-defined command and user-defined parameters,
-/// separated by whitespaces.
-///
-/// Ideas for pre-defined commands:
-///
-/// - `create` - create new tuple space \ tuple space server
-/// - `close` or `quit` - tear down the tuple space and terminate the program
-/// - `detach` - close the CLI, but keep the tuple space server running in the background
-///
-// TODO: Keep the list updated.
-fn process_input(input: &str) -> RequiredAction {
-    use self::RequiredAction::*;
+    /// User input should always consist of a pre-defined command and user-defined parameters,
+    /// separated by whitespaces.
+    ///
+    /// Ideas for pre-defined commands:
+    ///
+    /// - `create` - create new tuple space \ tuple space server
+    /// - `close` or `quit` - tear down the tuple space and terminate the program
+    /// - `detach` - close the CLI, but keep the tuple space server running in the background
+    /// - `out <tuple>` - push the given <tuple> out into space
+    ///
+    // TODO: Keep the list updated.
+    fn process_input(&mut self, input: &str) -> RequiredAction {
+        use self::RequiredAction::*;
+        println!("user echo: {}", input);
+        let tokens: Vec<&str> = input.trim().split_whitespace().collect();
+        if tokens.is_empty() {
+            return NONE;
+        }
 
-    println!("user echo: {}", input);
-    let tokens: Vec<&str> = input.split_whitespace().collect();
-    if tokens.is_empty() {
-        return NONE;
+        let command = tokens.get(0);
+        match command {
+            Some(&"create") => self.cmd_create(&tokens[1..]),
+            Some(&"close") => self.cmd_close(),
+            Some(&"detach") => self.cmd_detach(),
+            _ => {
+                println!("unknown command");
+                NONE
+            }
+        }
     }
 
-    let command = tokens.get(0);
-    match command {
-        Some(&"create") => cmd_create(&tokens[1..]),
-        Some(&"close") => cmd_close(),
-        Some(&"detach") => cmd_detach(),
-        _ => NONE,
+    fn cmd_create(&mut self, parameters: &[&str]) -> RequiredAction {
+        println!("creation parameters:");
+        for p in parameters {
+            println!("{}", p)
+        }
+
+        if self.tuplespace.is_none() {
+            println!("creating new tuplespace");
+            self.tuplespace = Some(Space::new(SimpleStore::new()));
+        } else {
+            println!("cannot create new tuple space! already exists");
+        }
+        RequiredAction::NONE
     }
-}
 
-fn cmd_create(parameters: &[&str]) -> RequiredAction {
-    println!("creation parameters:");
-    for p in parameters {
-        println!("{}", p)
+    fn cmd_close(&mut self) -> RequiredAction {
+        RequiredAction::CLOSE
     }
-    RequiredAction::NONE
-}
 
-fn cmd_close() -> RequiredAction {
-    RequiredAction::CLOSE
-}
-
-fn cmd_detach() -> RequiredAction {
-    RequiredAction::DETACH
+    fn cmd_detach(&mut self) -> RequiredAction {
+        if self.tuplespace.is_none() {
+            println!("Cannot detach! Error: no tuple space initialised");
+            return RequiredAction::NONE;
+        }
+        RequiredAction::DETACH
+    }
 }
