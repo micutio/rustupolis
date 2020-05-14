@@ -15,19 +15,19 @@ travis-ci = { repository = "https://travis-ci.org/Micutio/rustupolis", branch = 
 
 [lib]
 name = "rustupolis"
-path = "src/lib.rs"
+path = "src/lib/lib.rs"
 test = true
 doctest = true
 
 [[bin]]
 name = "rustupolis_cli"
-path = "src/bin/cli.rs"
+path = "src/bin/cli/cli.rs"
 test = true
 doctest = true
 
 [[bin]]
 name = "rustupolis_tuple_server"
-path = "src/bin/tuple_server.rs"
+path = "src/bin/ts/tuple_server.rs"
 test = true
 doctest = true
 

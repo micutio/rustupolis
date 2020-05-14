@@ -12,12 +12,16 @@
 #[macro_use]
 extern crate rustupolis;
 
+mod lexing;
+
 use std::io;
 use std::io::Write;
 
+use futures::executor;
+use lexing::Lexer;
 use rustupolis::space::Space;
 use rustupolis::store::SimpleStore;
-use rustupolis::tuple::E;
+use rustupolis::tuple::Tuple;
 
 fn main() {
     println!("Rustupolis CLI");
@@ -92,6 +96,7 @@ impl Cli {
             Some(&"create") => self.cmd_create(&tokens[1..]),
             Some(&"close") => self.cmd_close(),
             Some(&"detach") => self.cmd_detach(),
+            Some(&"out") => self.cmd_out(&tokens[1..]),
             _ => {
                 println!("unknown command");
                 NONE
@@ -124,5 +129,28 @@ impl Cli {
             return RequiredAction::NONE;
         }
         RequiredAction::DETACH
+    }
+
+    fn cmd_out(&mut self, parameters: &[&str]) -> RequiredAction {
+        if let Some(space) = &mut self.tuplespace {
+            let param_list = parameters.join("");
+            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+            for t in tuples {
+                if !t.is_empty() {
+                    if t.is_defined() {
+                        if let Err(e) = executor::block_on(space.tuple_out(t)) {
+                            eprintln!("Cannot push tuple into space! Encountered error {:?}", e);
+                        } else {
+                            println!("pushed tuple(s) {} into tuple space", param_list);
+                        }
+                    } else {
+                        eprintln!("Cannot push tuple into space! The given tuple is ill-defined.");
+                    }
+                }
+            }
+        } else {
+            println!("Cannot push tuple into space! There is no tuple space initialised");
+        }
+        RequiredAction::NONE
     }
 }
