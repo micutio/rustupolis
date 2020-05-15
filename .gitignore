@@ -3,5 +3,7 @@ target/
 Cargo.lock
 *.swp
 
-# Ignore ID settings
+# Ignore IDE settings
 .vscode
+.idea
+rustupolis.iml
