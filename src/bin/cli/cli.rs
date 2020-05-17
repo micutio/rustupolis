@@ -96,7 +96,9 @@ impl Cli {
             Some(&"create") => self.cmd_create(&tokens[1..]),
             Some(&"close") => self.cmd_close(),
             Some(&"detach") => self.cmd_detach(),
-            Some(&"out") => self.cmd_out(&tokens[1..]),
+            Some(&"out") => self.cmd_tuple_out(&tokens[1..]),
+            Some(&"read") | Some(&"rd") => self.cmd_tuple_read(&tokens[1..]),
+            Some(&"take") | Some(&"in") => self.cmd_tuple_take(&tokens[1..]),
             _ => {
                 println!("unknown command");
                 NONE
@@ -131,7 +133,7 @@ impl Cli {
         RequiredAction::DETACH
     }
 
-    fn cmd_out(&mut self, parameters: &[&str]) -> RequiredAction {
+    fn cmd_tuple_out(&mut self, parameters: &[&str]) -> RequiredAction {
         if let Some(space) = &mut self.tuplespace {
             let param_list = parameters.join("");
             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
@@ -151,6 +153,48 @@ impl Cli {
         } else {
             println!("Cannot push tuple into space! There is no tuple space initialised");
         }
+        RequiredAction::NONE
+    }
+
+    fn cmd_tuple_read(&mut self, parameters: &[&str]) -> RequiredAction {
+        if let Some(space) = &mut self.tuplespace {
+            let param_list = parameters.join("");
+            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+            for rd_tup in tuples {
+                if !rd_tup.is_empty() {
+                    println!("reading tuple matching {} from space", rd_tup);
+                    if let Some(match_tup) = executor::block_on(space.tuple_rd(rd_tup)) {
+                        println!("found match: {}", match_tup);
+                    } else {
+                        eprintln!("No matching tuple could be found.");
+                    }
+                }
+            }
+        } else {
+            println!("Cannot read tuple from space! There is no tuple space initialised");
+        }
+        // TODO: This suffices for our echo test cli. In the future this should return a tuple!
+        RequiredAction::NONE
+    }
+
+    fn cmd_tuple_take(&mut self, parameters: &[&str]) -> RequiredAction {
+        if let Some(space) = &mut self.tuplespace {
+            let param_list = parameters.join("");
+            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+            for rd_tup in tuples {
+                if !rd_tup.is_empty() {
+                    println!("pulling in tuple matching {} from space", rd_tup);
+                    if let Some(match_tup) = executor::block_on(space.tuple_in(rd_tup)) {
+                        println!("found match: {}", match_tup);
+                    } else {
+                        eprintln!("No matching tuple could be found.");
+                    }
+                }
+            }
+        } else {
+            println!("Cannot pull in tuple from space! There is no tuple space initialised");
+        }
+        // TODO: This suffices for our echo test cli. In the future this should return a tuple!
         RequiredAction::NONE
     }
 }
