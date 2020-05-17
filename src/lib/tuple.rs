@@ -4,6 +4,7 @@
 
 use std::cmp::Ordering;
 use std::collections::Bound;
+use std::fmt::{Display, Formatter, Result};
 use std::iter::Iterator;
 
 /// E represents a tuple element.
@@ -76,16 +77,20 @@ impl Ord for E {
     }
 }
 
-impl ToString for E {
-    fn to_string(&self) -> String {
-        match self {
-            E::I(ref i) => i.to_string(),
-            E::D(ref d) => d.to_string(),
-            E::S(ref s) => s.to_string(),
-            E::T(ref t) => t.to_string(),
-            E::Any => "_".to_string(),
-            E::None => "nil".to_string(),
-        }
+impl Display for E {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                E::I(ref i) => i.to_string(),
+                E::D(ref d) => d.to_string(),
+                E::S(ref s) => s.to_string(),
+                E::T(ref t) => t.to_string(),
+                E::Any => "_".to_string(),
+                E::None => "nil".to_string(),
+            }
+        )
     }
 }
 
@@ -130,10 +135,11 @@ impl E {
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub struct Tuple(Vec<E>);
 
-impl ToString for Tuple {
-    fn to_string(&self) -> String {
-        format!(
-            "({})",
+impl Display for Tuple {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "{}",
             self.0
                 .iter()
                 .map(|x| x.to_string())
