@@ -139,7 +139,7 @@ impl Display for Tuple {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         write!(
             f,
-            "{}",
+            "({})",
             self.0
                 .iter()
                 .map(|x| x.to_string())
