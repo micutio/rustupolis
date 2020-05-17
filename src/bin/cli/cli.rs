@@ -164,9 +164,11 @@ impl Cli {
                 if !rd_tup.is_empty() {
                     println!("reading tuple matching {} from space", rd_tup);
                     if let Some(match_tup) = executor::block_on(space.tuple_rd(rd_tup)) {
-                        println!("found match: {}", match_tup);
-                    } else {
-                        eprintln!("No matching tuple could be found.");
+                        if match_tup.is_empty() {
+                            eprintln!("No matching tuple could be found.");
+                        } else {
+                            println!("found match: {}", match_tup);
+                        }
                     }
                 }
             }
@@ -185,9 +187,11 @@ impl Cli {
                 if !rd_tup.is_empty() {
                     println!("pulling in tuple matching {} from space", rd_tup);
                     if let Some(match_tup) = executor::block_on(space.tuple_in(rd_tup)) {
-                        println!("found match: {}", match_tup);
-                    } else {
-                        eprintln!("No matching tuple could be found.");
+                        if match_tup.is_empty() {
+                            eprintln!("No matching tuple could be found.");
+                        } else {
+                            println!("found match: {}", match_tup);
+                        }
                     }
                 }
             }

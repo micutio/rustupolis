@@ -50,6 +50,7 @@ impl Store for SimpleStore {
 
     /// Returns a copy of the tuple if it is defined and in the space.
     /// Otherwise look for any tuple that matches tup and return a copy.
+    /// If no matches can be found, return an empty tuple.
     fn rdp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
         if tup.is_defined() && self.0.contains(tup) {
             return Ok(Some(tup.clone()));
@@ -59,11 +60,12 @@ impl Store for SimpleStore {
                 return Ok(Some(m.clone()));
             }
         }
-        Ok(None)
+        Ok(Some(tuple![]))
     }
 
     /// Returns a tuple and take it out of the space if it is defined and in the space.
     /// Otherwise look for any tuple that matches tup, take it out of the space and return it.
+    /// /// If no matches can be found, return an empty tuple.
     fn inp(&mut self, tup: &Tuple) -> Result<Option<Tuple>> {
         if tup.is_defined() {
             return Ok(self.0.take(tup));
@@ -78,6 +80,6 @@ impl Store for SimpleStore {
         if let Some(ref m) = result {
             return Ok(self.0.take(m));
         }
-        Ok(None)
+        Ok(Some(tuple![]))
     }
 }
