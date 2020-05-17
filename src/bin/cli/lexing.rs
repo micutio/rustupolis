@@ -139,7 +139,6 @@ impl<'a> Lexer<'a> {
         let mut tuple_items: Vec<Option<Token<'a>>> = Vec::new();
         while chars[self.pos] != ')' {
             if let Some(token_opt) = self.match_next(chars) {
-                eprintln!("{} token {:?}", self.pos, token_opt);
                 tuple_items.push(Some(token_opt));
             }
             if self.pos >= chars.len() {

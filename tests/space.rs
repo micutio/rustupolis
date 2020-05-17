@@ -11,7 +11,6 @@ use rustupolis::tuple::E;
 // use std::future::Future;
 
 /// This test is faulty for now and results in a infinite loop when run with Travis CI.
-/// TODO: Replace deprecated methods.
 #[ignore]
 #[test]
 fn test_in() {
@@ -20,7 +19,7 @@ fn test_in() {
     let mut sp = Space::new(SimpleStore::new());
 
     // insert tuple 1
-    let tuple1 = tuple![E::str("foo"), E::Any];
+    let tuple1 = tuple![E::str("foo")];
     let out_future1 = sp.tuple_out(tuple1);
     let out_result1 = executor::block_on(out_future1);
 

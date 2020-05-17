@@ -7,7 +7,6 @@ extern crate rand_isaac;
 #[macro_use]
 extern crate rustupolis;
 
-#[macro_use]
 use std::sync::{Arc, Mutex};
 use std::thread;
 

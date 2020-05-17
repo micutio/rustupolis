@@ -72,11 +72,13 @@ impl Store for SimpleStore {
         }
         let mut result = None;
         for m in self.0.range(tup.range()) {
+            println!("check whether {} matches {}", tup, m);
             if tup.matches(m) {
                 result = Some(m.clone());
                 break;
             }
         }
+        println!("result: {:?}", result);
         if let Some(ref m) = result {
             return Ok(self.0.take(m));
         }

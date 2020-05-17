@@ -76,7 +76,6 @@ where
                 if let Err(e) = self.pending.insert(tup.clone(), tx) {
                     Match::Done(Err(Error::with_chain(e, "send failed")))
                 } else {
-                    println!("pending");
                     Match::Pending(rx)
                 }
             }
