@@ -25,12 +25,6 @@ path = "src/bin/cli/cli.rs"
 test = true
 doctest = true
 
-[[bin]]
-name = "rustupolis_tuple_server"
-path = "src/bin/ts/tuple_server.rs"
-test = true
-doctest = true
-
 [dependencies]
 # clap = "2.33.1"
 error-chain = "0.12.2"
