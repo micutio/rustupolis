@@ -45,6 +45,6 @@ alpha 0.0.2
 
 Run rust with the following parameters to achieve trace output and stack traces.
 
-```rust
+```bash
 RUST_LOG=rustupolis=trace RUST_BACKTRACE=1 cargo test
 ```
