@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate rustupolis;
-
-extern crate env_logger;
-
+extern crate pretty_env_logger;
 use rustupolis::tuple::E;
 use rustupolis::wildcard::Tree;
 

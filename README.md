@@ -40,3 +40,11 @@ The tuple space is being implemented iteratively, where each iteration improves 
 ## Current Version
 
 alpha 0.0.2
+
+## Development Notes: Testing and Logging
+
+Run rust with the following parameters to achieve trace output and stack traces.
+
+```rust
+RUST_LOG=rustupolis=trace RUST_BACKTRACE=1 cargo test
+```

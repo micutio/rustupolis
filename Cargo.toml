@@ -1,6 +1,6 @@
 [package]
 name = "rustupolis"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Michael Wagner <wagner.mchl@googlemail.com>"]
 edition = "2018"
 description = "An implementation of the tuple space data structure in Rust."
@@ -37,9 +37,10 @@ error-chain = "0.12.2"
 futures = "0.3.5"
 indextree-ng = "1.0.5"
 log = "0.4.8"
+pretty_env_logger = "0.4.0"
 rand = "0.7.3"
 rand_isaac = "0.2.0"
-env_logger = "0.7.1"
+# env_logger = "0.7.1"
 
 [[example]]
 name = "hello_world"
