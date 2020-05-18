@@ -11,15 +11,17 @@ use rustupolis::tuple::E;
 // use std::future::Future;
 
 /// This test is faulty for now and results in a infinite loop when run with Travis CI.
-#[ignore]
+// #[ignore]
 #[test]
 fn test_in() {
+    pretty_env_logger::init();
+
     // Tests insertion and retrieval of tuples into/from a SimpleStore space.
     // create new space
     let mut sp = Space::new(SimpleStore::new());
 
     // insert tuple 1
-    let tuple1 = tuple![E::str("foo")];
+    let tuple1 = tuple![E::str("foo"), E::I(42)];
     let out_future1 = sp.tuple_out(tuple1);
     let out_result1 = executor::block_on(out_future1);
 
@@ -42,7 +44,7 @@ fn test_in() {
     }
 
     // retrieve tuple 1 and 2
-    let retrieval_future = sp.tuple_in(tuple![E::str("foo"), E::I(42)]);
+    let retrieval_future = sp.tuple_in(tuple![E::str("foo"), E::Any]);
     let retrieval_result = executor::block_on(retrieval_future);
 
     match retrieval_result {

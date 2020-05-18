@@ -13,6 +13,7 @@
 extern crate error_chain;
 #[macro_use]
 extern crate log;
+extern crate pretty_env_logger;
 
 extern crate futures;
 extern crate indextree_ng;

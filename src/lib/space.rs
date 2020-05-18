@@ -31,7 +31,17 @@ impl Future for Match {
                 Poll::from(None)
             }
             // Match::Pending(ref rx) => rx.poll().map_err(|()| "receive failed".into()),
-            Match::Pending(_) => Poll::Pending,
+            // Match::Pending(_) => Poll::Pending,
+            Match::Pending(ref rx) => {
+                let receiver_poll = rx.try_recv();
+                match receiver_poll {
+                    Ok(tup) => Poll::from(Some(tup)),
+                    Err(e) => {
+                        eprintln!("Match::poll encountered error: {:?}", e);
+                        Poll::from(None)
+                    }
+                }
+            }
         }
     }
 }
@@ -55,12 +65,18 @@ where
 
     /// Find a matching tuple, retrieve AND remove it from the space.
     pub fn tuple_in(&mut self, tup: Tuple) -> Match {
+        trace!("tuple_in");
         match self.store.inp(&tup) {
             Ok(None) => {
+                trace!("matched Ok(None)");
                 let (tx, rx) = channel();
-                if let Err(e) = self.pending.insert(tup.clone(), tx) {
+                let resultat = self.pending.insert(tup.clone(), tx);
+                trace!("resultat {:?}", resultat);
+                if let Err(e) = resultat {
+                    trace!("return match::Done(Err(...))");
                     Match::Done(Err(Error::with_chain(e, "send failed")))
                 } else {
+                    trace!("return Match::Pending(rx)");
                     Match::Pending(rx)
                 }
             }
@@ -70,6 +86,7 @@ where
 
     /// Find a matching tuple, retrieve but NOT remove it from the space.
     pub fn tuple_rd(&mut self, tup: Tuple) -> Match {
+        trace!("tuple_rd");
         match self.store.rdp(&tup) {
             Ok(None) => {
                 let (tx, rx) = channel();
@@ -86,6 +103,7 @@ where
     /// Inserts a tuple into the store and returns a match that is
     /// either still pending or done.
     pub fn tuple_out(&mut self, tup: Tuple) -> Pin<Box<dyn Future<Output = Result<(), Error>>>> {
+        trace!("tuple_out");
         if !tup.is_defined() {
             // Box::new(futures::future::err("undefined tuple".into()))
             Box::pin(future::err(Error::from("undefined tuple")))
