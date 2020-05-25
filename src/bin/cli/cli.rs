@@ -36,6 +36,11 @@ enum RequiredAction {
     NONE,
 }
 
+/// The CLI wraps the tuple space into an application, allowing the user to insert, query and
+/// retrieve data in tuple form.
+/// For now this is a simple echo server that takes tuples and prints results for any queries.
+/// Future versions are planned to include persistent sessions (file or daemon-based) and complete
+/// support for asynchronous operations.
 struct Cli {
     stdin: io::Stdin,
     stdout: io::Stdout,
@@ -75,12 +80,10 @@ impl Cli {
     /// User input should always consist of a pre-defined command and user-defined parameters,
     /// separated by whitespaces.
     ///
-    /// Ideas for pre-defined commands:
+    /// Ideas for more pre-defined commands:
     ///
-    /// - `create` - create new tuple space \ tuple space server
-    /// - `close` or `quit` - tear down the tuple space and terminate the program
+    /// - `attach` - re-connect to a running tuple space session
     /// - `detach` - close the CLI, but keep the tuple space server running in the background
-    /// - `out <tuple>` - push the given <tuple> out into space
     ///
     // TODO: Keep the list updated.
     fn process_input(&mut self, input: &str) -> RequiredAction {
@@ -106,6 +109,9 @@ impl Cli {
         }
     }
 
+    /// Create a new tuple space.
+    /// In future versions this should take parameters to control the variation and underlying
+    /// server attributes.
     fn cmd_create(&mut self, parameters: &[&str]) -> RequiredAction {
         println!("creation parameters:");
         for p in parameters {
