@@ -141,7 +141,7 @@ impl Cli {
 
     fn cmd_tuple_out(&mut self, parameters: &[&str]) -> RequiredAction {
         if let Some(space) = &mut self.tuplespace {
-            let param_list = parameters.join("");
+            let param_list = parameters.join(" ");
             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
             for t in tuples {
                 if !t.is_empty() {
@@ -164,7 +164,7 @@ impl Cli {
 
     fn cmd_tuple_read(&mut self, parameters: &[&str]) -> RequiredAction {
         if let Some(space) = &mut self.tuplespace {
-            let param_list = parameters.join("");
+            let param_list = parameters.join(" ");
             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
             for rd_tup in tuples {
                 if !rd_tup.is_empty() {
@@ -187,7 +187,7 @@ impl Cli {
 
     fn cmd_tuple_take(&mut self, parameters: &[&str]) -> RequiredAction {
         if let Some(space) = &mut self.tuplespace {
-            let param_list = parameters.join("");
+            let param_list = parameters.join(" ");
             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
             for rd_tup in tuples {
                 if !rd_tup.is_empty() {
