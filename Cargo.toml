@@ -34,7 +34,6 @@ log = "0.4.8"
 pretty_env_logger = "0.4.0"
 rand = "0.7.3"
 rand_isaac = "0.2.0"
-# env_logger = "0.7.1"
 
 [[example]]
 name = "hello_world"
