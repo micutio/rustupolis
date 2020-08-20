@@ -8,6 +8,7 @@ repository = "https://github.com/micutio/rustupolis"
 readme = "README.md"
 # Up to five keywords.
 keywords = ["tuple space", "concurrent", "distributed", "decentralized"]
+categories = ["command-line-utilities", "data-structures"]
 license = "MIT License"
 
 [badges]
