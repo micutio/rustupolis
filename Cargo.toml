@@ -9,7 +9,7 @@ readme = "README.md"
 # Up to five keywords.
 keywords = ["tuple-space", "concurrent", "distributed", "decentralized"]
 categories = ["command-line-utilities", "data-structures"]
-license = "MIT License"
+license = "MIT"
 
 [badges]
 travis-ci = { repository = "https://travis-ci.org/Micutio/rustupolis", branch = "master" }
