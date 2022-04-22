@@ -34,7 +34,7 @@ The tuple space is being implemented iteratively, where each iteration improves 
 - [x] local tuple space with multi-threaded and concurrent access
 - [x] interactive command line interface for creating tuple spaces and pushing/pulling tuples
 - [ ] permanent storage / backup
-- [ ] remote tuple space server, accessible via network sockets
+- [ ] remote tuple space Server, accessible via network sockets
 - [ ] distributed tuple space on multiple servers, accessible via network
 - [ ] 'space of spaces', tuples can be tuple spaces themselves
 

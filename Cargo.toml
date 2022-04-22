@@ -11,6 +11,15 @@ keywords = ["tuple-space", "concurrent", "distributed", "decentralized"]
 categories = ["command-line-utilities", "data-structures"]
 license = "MIT"
 
+# For documentation of features see the `mio::features` module.
+[features]
+# By default Mio only provides a shell implementation.
+default = []
+# Enables the `Poll` and `Registry` types.
+os-poll = []
+# Enables `mio::net` module containing networking primitives.
+net = []
+
 [badges]
 travis-ci = { repository = "https://travis-ci.org/Micutio/rustupolis", branch = "master" }
 
@@ -35,6 +44,7 @@ log = "0.4.8"
 pretty_env_logger = "0.4.0"
 rand = "0.7.3"
 rand_isaac = "0.2.0"
+mio = {version = "0.8", features = ["net","os-poll"]}
 
 [[example]]
 name = "hello_world"
