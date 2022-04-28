@@ -3,18 +3,24 @@ extern crate core;
 use crate::server::Server;
 use crate::repository::Repository;
 
-mod repository;
+pub mod repository;
 mod tcp_server;
 mod udp_server;
-mod server;
+pub mod server;
 mod lexing;
 
 fn main () {
  let ip_address =String::from("127.0.0.1");
- let port = String::from("9000");
+ let port_tcp = String::from("9000");
+ //let port_udp = String::from("9001");
 
  let repository = Repository::new();
 
- let new_server = Server::new(server::Protocol::TCP, ip_address,port,repository);
- new_server.start_server()
+ let new_server = Server::new(server::Protocol::TCP, &ip_address,&port_tcp,&repository);
+// let new_server2 = Server::new(server::Protocol::UDP, &ip_address,&port_udp,&repository);
+
+match new_server.start_server() {
+ Ok(_) => {println!("{}", "OK ")}
+ Err(e) => {println!("{}",e)}
+}
 }

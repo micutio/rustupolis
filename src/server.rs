@@ -5,16 +5,16 @@ pub enum Protocol{
     UDP
 }
 
-pub struct Server{
+pub struct Server<'a> {
     protocol: Protocol,
-    ip_address: String,
-    port: String,
-    repository: Repository
+    ip_address: &'a String,
+    port: &'a String,
+    repository: &'a Repository
 }
 
-impl Server {
+impl Server<'_> {
 
-    pub fn new(protocol: Protocol, ip_address: String, port: String, repository: Repository) -> Server {
+    pub fn new<'a>(protocol: Protocol, ip_address: &'a String, port: &'a String, repository: &'a Repository) -> Server<'a> {
         Server {
             protocol,
             ip_address,
@@ -23,13 +23,13 @@ impl Server {
         }
     }
 
-    pub fn start_server(self) {
+    pub fn start_server(self) -> std::io::Result<()> {
          match self.protocol {
             Protocol::TCP => {
-                tcp_server::launch_server(&self.ip_address, &self.port, &self.repository).unwrap()
+                tcp_server::launch_server(&self.ip_address, &self.port, &self.repository)
             },
             Protocol::UDP => {
-                udp_server::launch_server(&self.ip_address, &self.port, &self.repository).unwrap()
+                udp_server::launch_server(&self.ip_address, &self.port, &self.repository)
             }
         }
     }

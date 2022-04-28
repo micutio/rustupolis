@@ -66,11 +66,11 @@ impl Repository {
                         for rd_tup in tuples {
                             if !rd_tup.is_empty() {
                                 let mut space = x.lock().unwrap();
-                                println!("reading tuples {} from space", rd_tup);
                                 if let Some(match_tup) = executor::block_on(space.tuple_rd(rd_tup)) {
                                     if match_tup.is_empty() {
                                         response = NoResponse(String::from("No matching tuple could be found.\n"));
                                     } else {
+                                        println!("reading tuples {} from space", match_tup);
                                         response = DataResponse(match_tup);
                                     }
                                 }

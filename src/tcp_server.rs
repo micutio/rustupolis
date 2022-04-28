@@ -6,6 +6,7 @@ use mio::{Events, Interest, Poll, Registry, Token};
 use pretty_env_logger::env_logger;
 use rustupolis::space::Space;
 use rustupolis::store::SimpleStore;
+use std::any::Any;
 use std::collections::HashMap;
 use std::io;
 use std::io::{Read, Write};
@@ -16,7 +17,7 @@ use std::sync::{Arc, Mutex};
 const SERVER: Token = Token(0);
 
 // Some data we'll send over the connection.
-const DATA: &[u8] = b"Hello world!\n";
+const DATA: &[u8] = b"Connected\n";
 
 #[cfg(not(target_os = "wasi"))]
 pub fn launch_server(
@@ -85,13 +86,16 @@ pub fn launch_server(
                 token => {
                     // Maybe received an event for a TCP connection.
                     let done = if let Some(connection) = connections.get_mut(&token) {
-                        handle_connection_event(
+                        match handle_connection_event(
                             poll.registry(),
                             connection,
                             event,
                             &mut clients,
                             repository,
-                        )?
+                        ) {
+                            Ok(result) => result,
+                            Err(_) => true,
+                        }
                     } else {
                         // Sporadic events happen, we can safely ignore them.
                         false
@@ -163,6 +167,7 @@ fn handle_connection_event<'a>(
             let received_data = &received_data[..bytes_read];
             if let Ok(str_buf) = from_utf8(received_data) {
                 let tuple_s_attached = clients.get(&event.token());
+                println!("{}", String::from(str_buf.trim_end()));
                 let result =
                     repository.manage_request(String::from(str_buf.trim_end()), tuple_s_attached);
                 match result {
