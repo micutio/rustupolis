@@ -6,7 +6,6 @@ use mio::{Events, Interest, Poll, Registry, Token};
 use pretty_env_logger::env_logger;
 use rustupolis::space::Space;
 use rustupolis::store::SimpleStore;
-use std::any::Any;
 use std::collections::HashMap;
 use std::io;
 use std::io::{Read, Write};

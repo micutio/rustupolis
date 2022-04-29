@@ -66,19 +66,17 @@ pub(crate) fn launch_server(
                                     RequestResponse::SpaceResponse(x) => match x {
                                         None => {
                                             println!("Tuple space not Found")
-                                        },
-                                        Some(y) => {
-                                            match clients.insert(source_address, y) {
-                                                None => {
-                                                    println!("Tuple space attached")
-                                                }
-                                                Some(_) => {
-                                                    *clients.get_mut(&source_address).unwrap() =
-                                                        x.unwrap();
-                                                    println!("Tuple space attach updated")
-                                                }
-                                            }
                                         }
+                                        Some(y) => match clients.insert(source_address, y) {
+                                            None => {
+                                                println!("Tuple space attached")
+                                            }
+                                            Some(_) => {
+                                                *clients.get_mut(&source_address).unwrap() =
+                                                    x.unwrap();
+                                                println!("Tuple space attach updated")
+                                            }
+                                        },
                                     },
                                     RequestResponse::NoResponse(x) => {
                                         if let Err(e) = socket.send_to(x.as_ref(), source_address) {
