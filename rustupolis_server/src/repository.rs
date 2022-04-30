@@ -20,14 +20,13 @@ pub enum RequestResponse<'a> {
 
 impl Repository {
     pub fn new() -> Repository {
-        let mut r = Repository {
+        Repository {
             tuple_spaces: HashMap::with_capacity(128),
-        };
-        r.tuple_spaces.insert(
-            "test".parse().unwrap(),
-            Arc::new(Mutex::new(Space::new(SimpleStore::new()))),
-        );
-        r
+        }
+    }
+
+    pub fn add_tuple_space(&mut self, name: String){
+        self.tuple_spaces.insert(name, Arc::new(Mutex::new(Space::new(SimpleStore::new()))));
     }
 
     pub fn manage_request(

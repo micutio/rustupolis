@@ -14,7 +14,8 @@ fn main() {
     let port_tcp = String::from("9000");
     //let port_udp = String::from("9001");
 
-    let repository = Repository::new();
+    let mut repository = Repository::new();
+    repository.add_tuple_space(String::from("test"));
 
     let new_server = Server::new(server::Protocol::TCP, &ip_address, &port_tcp, &repository);
     // let new_server2 = Server::new(server::Protocol::UDP, &ip_address,&port_udp,&repository);
