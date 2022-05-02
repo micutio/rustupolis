@@ -19,8 +19,8 @@ mio = {version = "0.8", features = ["net","os-poll"]}
 rustupolis = { path = "../rustupolis" }
 futures = "0.3.5"
 log = "0.4.8"
-pretty_env_logger = "0.4.0"
 error-chain = "0.12.2"
+crossbeam = "0.8"
 
 [[test]]
 name = "test_server"

@@ -12,20 +12,27 @@ mod udp_server;
 fn main() {
     let ip_address = String::from("127.0.0.1");
     let port_tcp = String::from("9000");
-    //let port_udp = String::from("9001");
+    let port_udp = String::from("9001");
 
     let mut repository = Repository::new();
     repository.add_tuple_space(String::from("test"));
 
-    let new_server = Server::new(server::Protocol::TCP, &ip_address, &port_tcp, &repository);
-    // let new_server2 = Server::new(server::Protocol::UDP, &ip_address,&port_udp,&repository);
+    let server_tcp = Server::new(server::Protocol::TCP, &ip_address, &port_tcp, &repository);
+    let server_udp = Server::new(server::Protocol::UDP, &ip_address, &port_udp, &repository);
 
-    match new_server.start_server() {
-        Ok(_) => {
-            println!("{}", "OK ")
+    let server_list = vec![server_tcp,server_udp];
+
+    crossbeam::scope(|scope| {
+        for server in server_list{
+            scope.spawn(move |_| match server.start_server() {
+                Ok(_) => {
+                    println!("{}", "OK ")
+                }
+                Err(e) => {
+                    println!("{}", e)
+                }
+            });
         }
-        Err(e) => {
-            println!("{}", e)
-        }
-    }
+    }).unwrap();
+
 }

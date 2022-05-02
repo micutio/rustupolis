@@ -3,7 +3,6 @@ use crate::Repository;
 use mio::event::Event;
 use mio::net::{TcpListener, TcpStream};
 use mio::{Events, Interest, Poll, Registry, Token};
-use pretty_env_logger::env_logger;
 use rustupolis::space::Space;
 use rustupolis::store::SimpleStore;
 use std::collections::HashMap;
@@ -24,7 +23,6 @@ pub fn launch_server(
     port: &String,
     repository: &Repository,
 ) -> std::io::Result<()> {
-    env_logger::init();
 
     let address = format!("{}:{}", ip_address, port);
 
@@ -49,7 +47,7 @@ pub fn launch_server(
     // Unique token for each incoming connection.
     let mut unique_token = Token(SERVER.0 + 1);
 
-    println!("You can connect to the server using `ncat`:");
+    println!("You can connect to the TCP server using `ncat`:");
     println!("ncat {} {}", ip_address, port);
 
     loop {

@@ -1,17 +1,15 @@
 use std::collections::HashMap;
-// You can run this example from the root of the mio repo:
-// cargo run --example udp_server --features="os-poll net"
 use crate::repository::RequestResponse;
 use crate::Repository;
 use log::warn;
 use mio::{Events, Interest, Poll, Token};
-use pretty_env_logger::env_logger;
 use rustupolis::space::Space;
 use rustupolis::store::SimpleStore;
 use std::io;
 use std::net::SocketAddr;
 use std::str::from_utf8;
 use std::sync::{Arc, Mutex};
+use mio::net::UdpSocket;
 
 // A token to allow us to identify which event is for the `UdpSocket`.
 const UDP_SOCKET: Token = Token(0);
@@ -22,8 +20,7 @@ pub(crate) fn launch_server(
     port: &String,
     repository: &Repository,
 ) -> io::Result<()> {
-    use mio::net::UdpSocket;
-    env_logger::init();
+
     let mut poll = Poll::new()?;
     let mut events = Events::with_capacity(126);
 
@@ -39,7 +36,7 @@ pub(crate) fn launch_server(
     poll.registry()
         .register(&mut socket, UDP_SOCKET, Interest::READABLE)?;
 
-    println!("You can connect to the server using `ncat`:");
+    println!("You can connect to the UDP server using `ncat`:");
     println!("ncat -u {} {}", ip_address, port);
 
     let mut buf = [0; 1 << 16];
@@ -122,9 +119,4 @@ pub(crate) fn launch_server(
             }
         }
     }
-}
-
-#[cfg(target_os = "wasi")]
-fn main() {
-    panic!("can't bind to an address with wasi")
 }
