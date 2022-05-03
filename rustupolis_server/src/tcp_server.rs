@@ -40,7 +40,7 @@ pub fn launch_server(
     poll.registry()
         .register(&mut server, SERVER, Interest::READABLE)?;
 
-    let mut clients: HashMap<Token, &Arc<Mutex<Space<SimpleStore>>>> = HashMap::new();
+    let mut clients: HashMap<Token, Arc<Mutex<Space<SimpleStore>>>> = HashMap::new();
 
     // Map of `Token` -> `TcpStream`.
     let mut connections = HashMap::new();
@@ -119,7 +119,7 @@ fn handle_connection_event<'a>(
     registry: &Registry,
     connection: &mut TcpStream,
     event: &Event,
-    clients: &mut HashMap<Token, &'a Arc<Mutex<Space<SimpleStore>>>>,
+    clients: &mut HashMap<Token, Arc<Mutex<Space<SimpleStore>>>>,
     repository: &'a Repository,
 ) -> io::Result<bool> {
     if event.is_writable() {
@@ -168,19 +168,16 @@ fn handle_connection_event<'a>(
                 let result =
                     repository.manage_request(String::from(str_buf.trim_end()), tuple_s_attached);
                 match result {
-                    RequestResponse::SpaceResponse(x) => match x {
-                        None => {
-                            println!("Tuple space not Found")
-                        }
-                        Some(y) => match clients.insert(event.token(), y) {
+                    RequestResponse::SpaceResponse(tuple_space_arc) => {
+                        match clients.insert(event.token(), tuple_space_arc) {
                             None => {
                                 println!("Tuple space attached")
                             }
-                            Some(_) => {
-                                *clients.get_mut(&event.token()).unwrap() = x.unwrap();
+                            Some(tuple_space_arc) => {
+                                *clients.get_mut(&event.token()).unwrap() = tuple_space_arc;
                                 println!("Tuple space attach updated")
                             }
-                        },
+                        };
                     },
                     RequestResponse::NoResponse(x) => {
                         if let Err(e) = connection.write(x.as_ref()) {
