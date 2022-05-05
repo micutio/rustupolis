@@ -114,6 +114,7 @@ impl<'a> Lexer<'a> {
                 return None;
             }
         }
+        let end = self.pos;
         self.pos += 1;
 
         // println!("found string from {} to {}", start, self.pos);
@@ -121,7 +122,7 @@ impl<'a> Lexer<'a> {
 
         Some(Token {
             typ: TokenType::String,
-            val: &self.buf[start..self.pos],
+            val: &self.buf[start..end],
         })
     }
 

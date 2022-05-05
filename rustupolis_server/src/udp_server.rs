@@ -1,15 +1,13 @@
+use crate::client::Client;
 use crate::repository::RequestResponse;
 use crate::Repository;
 use log::warn;
 use mio::net::UdpSocket;
 use mio::{Events, Interest, Poll, Token};
-use rustupolis::space::Space;
-use rustupolis::store::SimpleStore;
 use std::collections::HashMap;
 use std::io;
 use std::net::SocketAddr;
 use std::str::from_utf8;
-use std::sync::{Arc, Mutex};
 
 // A token to allow us to identify which event is for the `UdpSocket`.
 const UDP_SOCKET: Token = Token(0);
@@ -29,7 +27,7 @@ pub(crate) fn launch_server(
 
     let mut socket = UdpSocket::bind(addr)?;
 
-    let mut clients: HashMap<SocketAddr, Arc<Mutex<Space<SimpleStore>>>> = HashMap::new();
+    let mut client_list: HashMap<SocketAddr, Client> = HashMap::new();
     // Register our socket with the token defined above and an interest in being
     // `READABLE`.
     poll.registry()
@@ -53,19 +51,18 @@ pub(crate) fn launch_server(
                     match socket.recv_from(&mut buf) {
                         Ok((packet_size, source_address)) => {
                             if let Ok(str_buf) = from_utf8(&buf[..packet_size]) {
-                                let tuple_s_attached = clients.get(&source_address);
-                                let result = repository.manage_request(
-                                    String::from(str_buf.trim_end()),
-                                    tuple_s_attached,
-                                );
+                                let client = client_list.get(&source_address);
+                                let result = repository
+                                    .manage_request(String::from(str_buf.trim_end()), client);
                                 match result {
                                     RequestResponse::SpaceResponse(tuple_space_arc) => {
-                                        match clients.insert(source_address, tuple_space_arc) {
+                                        match client_list.insert(source_address, tuple_space_arc) {
                                             None => {
                                                 println!("Tuple space attached")
                                             }
                                             Some(tuple_space_arc) => {
-                                                *clients.get_mut(&source_address).unwrap() = tuple_space_arc;
+                                                *client_list.get_mut(&source_address).unwrap() =
+                                                    tuple_space_arc;
                                                 println!("Tuple space attach updated")
                                             }
                                         };

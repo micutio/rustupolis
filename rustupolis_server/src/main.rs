@@ -8,6 +8,8 @@ pub mod repository;
 pub mod server;
 mod tcp_server;
 mod udp_server;
+mod client;
+mod constant;
 
 fn main() {
     let ip_address = String::from("127.0.0.1");
@@ -15,7 +17,6 @@ fn main() {
     let port_udp = String::from("9001");
 
     let repository = Repository::new();
-    repository.add_tuple_space(String::from("test"));
 
     let server_tcp = Server::new(server::Protocol::TCP, &ip_address, &port_tcp, &repository);
     let server_udp = Server::new(server::Protocol::UDP, &ip_address, &port_udp, &repository);

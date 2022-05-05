@@ -1,15 +1,14 @@
+use crate::client::Client;
 use crate::repository::RequestResponse;
 use crate::Repository;
 use mio::event::Event;
 use mio::net::{TcpListener, TcpStream};
 use mio::{Events, Interest, Poll, Registry, Token};
-use rustupolis::space::Space;
-use rustupolis::store::SimpleStore;
+
 use std::collections::HashMap;
 use std::io;
 use std::io::{Read, Write};
 use std::str::from_utf8;
-use std::sync::{Arc, Mutex};
 
 // Setup some tokens to allow us to identify which event is for which socket.
 const SERVER: Token = Token(0);
@@ -18,12 +17,11 @@ const SERVER: Token = Token(0);
 const DATA: &[u8] = b"Connected\n";
 
 #[cfg(not(target_os = "wasi"))]
-pub fn launch_server(
+pub fn launch_server<'a>(
     ip_address: &String,
     port: &String,
     repository: &Repository,
 ) -> std::io::Result<()> {
-
     let address = format!("{}:{}", ip_address, port);
 
     // Setup the TCP server socket.
@@ -40,7 +38,7 @@ pub fn launch_server(
     poll.registry()
         .register(&mut server, SERVER, Interest::READABLE)?;
 
-    let mut clients: HashMap<Token, Arc<Mutex<Space<SimpleStore>>>> = HashMap::new();
+    let mut clients: HashMap<Token, Client> = HashMap::new();
 
     // Map of `Token` -> `TcpStream`.
     let mut connections = HashMap::new();
@@ -119,7 +117,7 @@ fn handle_connection_event<'a>(
     registry: &Registry,
     connection: &mut TcpStream,
     event: &Event,
-    clients: &mut HashMap<Token, Arc<Mutex<Space<SimpleStore>>>>,
+    clients: &mut HashMap<Token, Client>,
     repository: &'a Repository,
 ) -> io::Result<bool> {
     if event.is_writable() {
@@ -163,22 +161,23 @@ fn handle_connection_event<'a>(
         if bytes_read != 0 {
             let received_data = &received_data[..bytes_read];
             if let Ok(str_buf) = from_utf8(received_data) {
-                let tuple_s_attached = clients.get(&event.token());
+                let client_option = clients.get(&event.token());
                 println!("{}", String::from(str_buf.trim_end()));
                 let result =
-                    repository.manage_request(String::from(str_buf.trim_end()), tuple_s_attached);
+                    repository.manage_request(String::from(str_buf.trim_end()), client_option);
                 match result {
-                    RequestResponse::SpaceResponse(tuple_space_arc) => {
-                        match clients.insert(event.token(), tuple_space_arc) {
+                    RequestResponse::SpaceResponse(client) => {
+
+                        match clients.insert(event.token(), client) {
                             None => {
                                 println!("Tuple space attached")
                             }
-                            Some(tuple_space_arc) => {
-                                *clients.get_mut(&event.token()).unwrap() = tuple_space_arc;
+                            Some(client) => {
+                                *clients.get_mut(&event.token()).unwrap() = client;
                                 println!("Tuple space attach updated")
                             }
                         };
-                    },
+                    }
                     RequestResponse::NoResponse(x) => {
                         if let Err(e) = connection.write(x.as_ref()) {
                             println!("{}", e)
