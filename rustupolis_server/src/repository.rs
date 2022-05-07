@@ -1,5 +1,5 @@
 use crate::client::Client;
-use crate::constant::{ADMIN_ATTRIBUTE, ATTACH, CREATE, DELETE, IN, OUT, PERMISSION, READ};
+use crate::constant::{ADMIN_ATTRIBUTE, ATTACH, CREATE, DELETE, EMPTY_REQUEST, IN, NO_MATCHING_TUPLE_FOUND, NO_PERMISSION, NO_TUPLE_SPACE_ATTACHED, OUT, PERMISSION, READ, REQUEST_DOESNT_EXIST, TUPLE_IS_EMPTY, TUPLE_SPACE_NOT_FOUND};
 use crate::lexing::Lexer;
 use crate::repository::RequestResponse::{DataResponse, NoResponse, OkResponse, SpaceResponse};
 use futures::executor;
@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex, RwLock};
 
 pub struct Repository {
-    tuple_spaces: Arc<RwLock<HashMap<String, Arc<Mutex<Space<SimpleStore>>>>>>,
+    tuple_spaces:           Arc<RwLock<HashMap<String, Arc<Mutex<Space<SimpleStore>>>>>>,
     permission_tuple_space: Arc<Mutex<Space<SimpleStore>>>,
 }
 
@@ -26,7 +26,7 @@ impl Repository {
     pub fn new() -> Repository {
         let permission = Arc::new(Mutex::new(Space::new(SimpleStore::new())));
         let new_repository = Repository {
-            tuple_spaces: Arc::new(RwLock::new(HashMap::with_capacity(128))),
+            tuple_spaces:           Arc::new(RwLock::new(HashMap::with_capacity(128))),
             permission_tuple_space: permission.clone(),
         };
         new_repository
@@ -173,23 +173,24 @@ impl Repository {
                         self.add_permission_list(attributes_list, words[2]);
                         OkResponse()
                     } else {
-                        NoResponse(String::from("No permission\n"))
+                        NoResponse(String::from(NO_PERMISSION))
                     }
                 }
                 DELETE => {
                     let attribute_to_delete = String::from(words[1]);
+                    // TODO check attributes
                     if self.check_permission(DELETE, &vec![attribute_to_delete], Some(words[2])) {
                         self.remove_tuple_space(words[2]);
                         OkResponse()
                     } else {
-                        NoResponse(String::from("No permission\n"))
+                        NoResponse(String::from(NO_PERMISSION))
                     }
                 }
                 ATTACH => {
                     let tuple_spaces = self.tuple_spaces.read().unwrap();
                     let tuple_space_found = tuple_spaces.get(words[1]);
                     match tuple_space_found {
-                        None => NoResponse(String::from("Tuple not found\n")),
+                        None => NoResponse(String::from(TUPLE_SPACE_NOT_FOUND)),
                         Some(tuple_space_ref) => {
                             let mut attributes_list: Vec<String> = Vec::with_capacity(126);
                             for index in 2..words.len() {
@@ -238,10 +239,10 @@ impl Repository {
                             }
                             OkResponse()
                         } else {
-                            NoResponse(String::from("No permission\n"))
+                            NoResponse(String::from(NO_PERMISSION))
                         }
                     } else {
-                        NoResponse(String::from("No tuple space attached\n"))
+                        NoResponse(String::from(NO_TUPLE_SPACE_ATTACHED))
                     }
                 }
                 READ => {
@@ -253,8 +254,8 @@ impl Repository {
                         ) {
                             let param_list = words[1..].join(" ");
                             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
-                            let mut response: RequestResponse =
-                                NoResponse(String::from("Somethings went wrong\n"));
+                            dbg!(&tuples);
+                            let mut response: RequestResponse = NoResponse(String::from(""));
                             for rd_tup in tuples {
                                 if !rd_tup.is_empty() {
                                     let mut space = client.tuple_space().lock().unwrap();
@@ -262,22 +263,22 @@ impl Repository {
                                         executor::block_on(space.tuple_rd(rd_tup))
                                     {
                                         if match_tup.is_empty() {
-                                            response = NoResponse(String::from(
-                                                "No matching tuple could be found.\n",
-                                            ));
+                                            response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
                                             println!("reading tuples {} from space", match_tup);
                                             response = DataResponse(match_tup);
                                         }
                                     }
+                                } else {
+                                    response = NoResponse(String::from(TUPLE_IS_EMPTY));
                                 }
                             }
                             response
                         } else {
-                            NoResponse(String::from("No permission\n"))
+                            NoResponse(String::from(NO_PERMISSION))
                         }
                     } else {
-                        NoResponse(String::from("No tuple space attached\n"))
+                        NoResponse(String::from(NO_TUPLE_SPACE_ATTACHED))
                     }
                 }
                 IN => {
@@ -289,8 +290,7 @@ impl Repository {
                         ) {
                             let param_list = words[1..].join(" ");
                             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
-                            let mut response: RequestResponse =
-                                NoResponse(String::from("Somethings went wrong\n"));
+                            let mut response: RequestResponse = NoResponse(String::from(""));
                             for rd_tup in tuples {
                                 if !rd_tup.is_empty() {
                                     let mut space = client.tuple_space().lock().unwrap();
@@ -299,27 +299,27 @@ impl Repository {
                                         executor::block_on(space.tuple_in(rd_tup))
                                     {
                                         if match_tup.is_empty() {
-                                            response = NoResponse(String::from(
-                                                "No matching tuple could be found.\n",
-                                            ));
+                                            response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
                                             response = DataResponse(match_tup);
                                         }
                                     }
+                                } else {
+                                    response = NoResponse(String::from(TUPLE_IS_EMPTY));
                                 }
                             }
                             response
                         } else {
-                            NoResponse(String::from("No permission\n"))
+                            NoResponse(String::from(NO_PERMISSION))
                         }
                     } else {
-                        NoResponse(String::from("No tuple space attached\n"))
+                        NoResponse(String::from(NO_TUPLE_SPACE_ATTACHED))
                     }
                 }
-                _ => NoResponse(String::from("Request doesn't exist\n")),
+                _ => NoResponse(String::from(REQUEST_DOESNT_EXIST)),
             }
         } else {
-            NoResponse(String::from("Empty request\n"))
+            NoResponse(String::from(EMPTY_REQUEST))
         }
     }
 }

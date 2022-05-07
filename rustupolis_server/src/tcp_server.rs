@@ -9,12 +9,10 @@ use std::collections::HashMap;
 use std::io;
 use std::io::{Read, Write};
 use std::str::from_utf8;
+use crate::constant::{CONNECTED, OK, TUPLE_SPACE_ATTACHED, TUPLE_SPACE_ATTACHED_UPDATED};
 
 // Setup some tokens to allow us to identify which event is for which socket.
 const SERVER: Token = Token(0);
-
-// Some data we'll send over the connection.
-const DATA: &[u8] = b"Connected\n";
 
 #[cfg(not(target_os = "wasi"))]
 pub fn launch_server<'a>(
@@ -121,8 +119,8 @@ fn handle_connection_event<'a>(
     repository: &'a Repository,
 ) -> io::Result<bool> {
     if event.is_writable() {
-        match connection.write(DATA) {
-            Ok(n) if n < DATA.len() => return Err(io::ErrorKind::WriteZero.into()),
+        match connection.write(CONNECTED.as_ref()) {
+            Ok(n) if n < CONNECTED.len() => return Err(io::ErrorKind::WriteZero.into()),
             Ok(_) => registry.reregister(connection, event.token(), Interest::READABLE)?,
             Err(ref err) if would_block(err) => {}
             Err(ref err) if interrupted(err) => {
@@ -167,14 +165,17 @@ fn handle_connection_event<'a>(
                     repository.manage_request(String::from(str_buf.trim_end()), client_option);
                 match result {
                     RequestResponse::SpaceResponse(client) => {
-
                         match clients.insert(event.token(), client) {
                             None => {
-                                println!("Tuple space attached")
+                                if let Err(e) = connection.write(TUPLE_SPACE_ATTACHED.as_ref()) {
+                                    println!("{}", e)
+                                }
                             }
                             Some(client) => {
                                 *clients.get_mut(&event.token()).unwrap() = client;
-                                println!("Tuple space attach updated")
+                                if let Err(e) = connection.write(TUPLE_SPACE_ATTACHED_UPDATED.as_ref()) {
+                                    println!("{}", e)
+                                }
                             }
                         };
                     }
@@ -184,7 +185,7 @@ fn handle_connection_event<'a>(
                         }
                     }
                     RequestResponse::OkResponse() => {
-                        if let Err(e) = connection.write("Operation done\n".as_ref()) {
+                        if let Err(e) = connection.write(OK.as_ref()) {
                             println!("{}", e)
                         }
                     }

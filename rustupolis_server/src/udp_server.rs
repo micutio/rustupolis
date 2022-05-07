@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::io;
 use std::net::SocketAddr;
 use std::str::from_utf8;
+use crate::constant::{OK, TUPLE_SPACE_ATTACHED, TUPLE_SPACE_ATTACHED_UPDATED};
 
 // A token to allow us to identify which event is for the `UdpSocket`.
 const UDP_SOCKET: Token = Token(0);
@@ -58,12 +59,16 @@ pub(crate) fn launch_server(
                                     RequestResponse::SpaceResponse(tuple_space_arc) => {
                                         match client_list.insert(source_address, tuple_space_arc) {
                                             None => {
-                                                println!("Tuple space attached")
+                                                if let Err(e) = socket.send_to(TUPLE_SPACE_ATTACHED.as_ref(), source_address) {
+                                                    println!("{}", e)
+                                                }
                                             }
                                             Some(tuple_space_arc) => {
                                                 *client_list.get_mut(&source_address).unwrap() =
                                                     tuple_space_arc;
-                                                println!("Tuple space attach updated")
+                                                if let Err(e) = socket.send_to(TUPLE_SPACE_ATTACHED_UPDATED.as_ref(), source_address) {
+                                                    println!("{}", e)
+                                                }
                                             }
                                         };
                                     }
@@ -74,7 +79,7 @@ pub(crate) fn launch_server(
                                     }
                                     RequestResponse::OkResponse() => {
                                         if let Err(e) = socket
-                                            .send_to("Operation done\n".as_ref(), source_address)
+                                            .send_to(OK.as_ref(), source_address)
                                         {
                                             println!("{}", e)
                                         }
