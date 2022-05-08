@@ -190,7 +190,11 @@ fn handle_connection_event<'a>(
                         }
                     }
                     RequestResponse::DataResponse(x) => {
-                        if let Err(e) = connection.write(x.to_string().as_ref()) {
+                        let mut tuple_list: String = String::new();
+                        for tuple in x {
+                            tuple_list += &tuple.to_string();
+                        }
+                        if let Err(e) = connection.write(tuple_list.as_ref()) {
                             println!("{}", e)
                         }
                     }

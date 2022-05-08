@@ -17,7 +17,7 @@ pub struct Repository {
 
 pub enum RequestResponse {
     SpaceResponse(Client),
-    DataResponse(Tuple),
+    DataResponse(Vec<Tuple>),
     OkResponse(),
     NoResponse(String),
 }
@@ -254,8 +254,8 @@ impl Repository {
                         ) {
                             let param_list = words[1..].join(" ");
                             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
-                            dbg!(&tuples);
                             let mut response: RequestResponse = NoResponse(String::from(""));
+                            let mut tuples_result : Vec<Tuple> = Vec::with_capacity(124);
                             for rd_tup in tuples {
                                 if !rd_tup.is_empty() {
                                     let mut space = client.tuple_space().lock().unwrap();
@@ -266,14 +266,19 @@ impl Repository {
                                             response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
                                             println!("reading tuples {} from space", match_tup);
-                                            response = DataResponse(match_tup);
+                                            tuples_result.push(match_tup);
                                         }
                                     }
                                 } else {
                                     response = NoResponse(String::from(TUPLE_IS_EMPTY));
                                 }
                             }
-                            response
+                            if tuples_result.is_empty() {
+                                response
+                            }else {
+                                DataResponse(tuples_result)
+                            }
+
                         } else {
                             NoResponse(String::from(NO_PERMISSION))
                         }
@@ -291,6 +296,7 @@ impl Repository {
                             let param_list = words[1..].join(" ");
                             let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
                             let mut response: RequestResponse = NoResponse(String::from(""));
+                            let mut tuples_result : Vec<Tuple> = Vec::with_capacity(124);
                             for rd_tup in tuples {
                                 if !rd_tup.is_empty() {
                                     let mut space = client.tuple_space().lock().unwrap();
@@ -301,14 +307,18 @@ impl Repository {
                                         if match_tup.is_empty() {
                                             response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
-                                            response = DataResponse(match_tup);
+                                            tuples_result.push(match_tup);
                                         }
                                     }
                                 } else {
                                     response = NoResponse(String::from(TUPLE_IS_EMPTY));
                                 }
                             }
-                            response
+                            if tuples_result.is_empty() {
+                                response
+                            }else {
+                                DataResponse(tuples_result)
+                            }
                         } else {
                             NoResponse(String::from(NO_PERMISSION))
                         }
