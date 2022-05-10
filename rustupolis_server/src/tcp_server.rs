@@ -171,8 +171,7 @@ fn handle_connection_event<'a>(
                                     println!("{}", e)
                                 }
                             }
-                            Some(client) => {
-                                *clients.get_mut(&event.token()).unwrap() = client;
+                            Some(_) => {
                                 if let Err(e) = connection.write(TUPLE_SPACE_ATTACHED_UPDATED.as_ref()) {
                                     println!("{}", e)
                                 }
@@ -209,7 +208,6 @@ fn handle_connection_event<'a>(
             return Ok(true);
         }
     }
-
     Ok(false)
 }
 

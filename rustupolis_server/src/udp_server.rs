@@ -56,16 +56,14 @@ pub(crate) fn launch_server(
                                 let result = repository
                                     .manage_request(String::from(str_buf.trim_end()), client);
                                 match result {
-                                    RequestResponse::SpaceResponse(tuple_space_arc) => {
-                                        match client_list.insert(source_address, tuple_space_arc) {
+                                    RequestResponse::SpaceResponse(new_client) => {
+                                        match client_list.insert(source_address, new_client) {
                                             None => {
                                                 if let Err(e) = socket.send_to(TUPLE_SPACE_ATTACHED.as_ref(), source_address) {
                                                     println!("{}", e)
                                                 }
                                             }
-                                            Some(tuple_space_arc) => {
-                                                *client_list.get_mut(&source_address).unwrap() =
-                                                    tuple_space_arc;
+                                            Some(_) => {
                                                 if let Err(e) = socket.send_to(TUPLE_SPACE_ATTACHED_UPDATED.as_ref(), source_address) {
                                                     println!("{}", e)
                                                 }
