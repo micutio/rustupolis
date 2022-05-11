@@ -104,8 +104,8 @@ impl<'a> Lexer<'a> {
     }
 
     fn parse_string(&mut self, chars: &[char]) -> Option<Token<'a>> {
-        self.pos += 1;
         let start = self.pos;
+        self.pos += 1;
         while chars[self.pos] != '\"' {
             self.pos += 1;
 
@@ -114,8 +114,8 @@ impl<'a> Lexer<'a> {
                 return None;
             }
         }
-        let end = self.pos;
         self.pos += 1;
+        let end = self.pos;
 
         // println!("found string from {} to {}", start, self.pos);
         // panic!();

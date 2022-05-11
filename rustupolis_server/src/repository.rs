@@ -17,7 +17,7 @@ pub struct Repository {
 
 pub enum RequestResponse {
     SpaceResponse(Client),
-    DataResponse(Vec<Tuple>),
+    DataResponse(String),
     OkResponse(),
     NoResponse(String),
 }
@@ -213,12 +213,10 @@ impl Repository {
                         ) {
                             let param_list = words[1..].join(" ");
                             let tuple_list: Vec<Tuple> = Lexer::new(&param_list).collect();
-
                             for tuple in tuple_list {
                                 if !tuple.is_empty() {
                                     if tuple.is_defined() {
                                         let mut space = client.tuple_space().lock().unwrap();
-
                                         if let Err(error) =
                                             executor::block_on(space.tuple_out(tuple))
                                         {
@@ -253,10 +251,12 @@ impl Repository {
                             Some(client.tuple_space_name()),
                         ) {
                             let param_list = words[1..].join(" ");
-                            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+                            let mut tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
                             let mut response: RequestResponse = NoResponse(String::from(""));
-                            let mut tuples_result : Vec<Tuple> = Vec::with_capacity(124);
-                            for rd_tup in tuples {
+                            let mut tuple_list: String = String::new();
+                            let mut nb_tuples = 0;
+                            for i in (0..tuples.len()).rev() {
+                                let rd_tup: Tuple = tuples.remove(i);
                                 if !rd_tup.is_empty() {
                                     let mut space = client.tuple_space().lock().unwrap();
                                     if let Some(match_tup) =
@@ -266,17 +266,25 @@ impl Repository {
                                             response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
                                             println!("reading tuples {} from space", match_tup);
-                                            tuples_result.push(match_tup);
+                                            tuple_list += &*match_tup.to_string();
+                                            nb_tuples+=1;
+                                            if i != 0 {
+                                                tuple_list.push_str(", ");
+                                            }
                                         }
                                     }
                                 } else {
                                     response = NoResponse(String::from(TUPLE_IS_EMPTY));
                                 }
                             }
-                            if tuples_result.is_empty() {
+                            if tuple_list.eq(&String::from("(")) {
                                 response
                             }else {
-                                DataResponse(tuples_result)
+                                if nb_tuples > 1 {
+                                    DataResponse("(".to_owned()+&tuple_list+")")
+                                }else {
+                                    DataResponse(tuple_list)
+                                }
                             }
 
                         } else {
@@ -294,10 +302,12 @@ impl Repository {
                             Some(client.tuple_space_name()),
                         ) {
                             let param_list = words[1..].join(" ");
-                            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+                            let mut tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
                             let mut response: RequestResponse = NoResponse(String::from(""));
-                            let mut tuples_result : Vec<Tuple> = Vec::with_capacity(124);
-                            for rd_tup in tuples {
+                            let mut tuple_list: String = String::new();
+                            let mut nb_tuples = 0;
+                            for i in (0..tuples.len()).rev() {
+                                let rd_tup: Tuple = tuples.remove(i);
                                 if !rd_tup.is_empty() {
                                     let mut space = client.tuple_space().lock().unwrap();
                                     println!("pulling in tuple matching {} from space", rd_tup);
@@ -307,17 +317,25 @@ impl Repository {
                                         if match_tup.is_empty() {
                                             response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
-                                            tuples_result.push(match_tup);
+                                            tuple_list += &*match_tup.to_string();
+                                            nb_tuples+=1;
+                                            if i != 0 {
+                                                tuple_list.push_str(", ");
+                                            }
                                         }
                                     }
                                 } else {
                                     response = NoResponse(String::from(TUPLE_IS_EMPTY));
                                 }
                             }
-                            if tuples_result.is_empty() {
+                            if tuple_list.eq(&String::from("(")) {
                                 response
                             }else {
-                                DataResponse(tuples_result)
+                                if nb_tuples > 1 {
+                                    DataResponse("(".to_owned()+&tuple_list+")")
+                                }else {
+                                    DataResponse(tuple_list)
+                                }
                             }
                         } else {
                             NoResponse(String::from(NO_PERMISSION))

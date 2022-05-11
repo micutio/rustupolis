@@ -82,11 +82,7 @@ pub(crate) fn launch_server(
                                             println!("{}", e)
                                         }
                                     }
-                                    RequestResponse::DataResponse(x) => {
-                                        let mut tuple_list: String = String::new();
-                                        for tuple in x {
-                                            tuple_list += &tuple.to_string();
-                                        }
+                                    RequestResponse::DataResponse(tuple_list) => {
                                         if let Err(e) =
                                             socket.send_to(tuple_list.as_ref(), source_address)
                                         {
