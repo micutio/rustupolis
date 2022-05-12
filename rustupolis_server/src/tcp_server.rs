@@ -5,11 +5,11 @@ use mio::event::Event;
 use mio::net::{TcpListener, TcpStream};
 use mio::{Events, Interest, Poll, Registry, Token};
 
+use crate::constant::{CONNECTED, OK, TUPLE_SPACE_ATTACHED, TUPLE_SPACE_ATTACHED_UPDATED};
 use std::collections::HashMap;
 use std::io;
 use std::io::{Read, Write};
 use std::str::from_utf8;
-use crate::constant::{CONNECTED, OK, TUPLE_SPACE_ATTACHED, TUPLE_SPACE_ATTACHED_UPDATED};
 
 // Setup some tokens to allow us to identify which event is for which socket.
 const SERVER: Token = Token(0);
@@ -52,11 +52,13 @@ pub fn launch_server<'a>(
         for event in events.iter() {
             match event.token() {
                 SERVER => loop {
-                    // Received an event for the TCP server socket, which indicates we can accept an connection.
+                    // Received an event for the TCP server socket, which indicates we can accept an
+                    // connection.
                     let (mut connection, address) = match server.accept() {
                         Ok((connection, address)) => (connection, address),
                         Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
-                            // If we get a `WouldBlock` error we know our listener has no more incoming connections queued,
+                            // If we get a `WouldBlock` error we know our listener has no more
+                            // incoming connections queued,
                             // so we can return to polling and wait for some more.
                             break;
                         }
@@ -172,7 +174,9 @@ fn handle_connection_event<'a>(
                                 }
                             }
                             Some(_) => {
-                                if let Err(e) = connection.write(TUPLE_SPACE_ATTACHED_UPDATED.as_ref()) {
+                                if let Err(e) =
+                                    connection.write(TUPLE_SPACE_ATTACHED_UPDATED.as_ref())
+                                {
                                     println!("{}", e)
                                 }
                             }

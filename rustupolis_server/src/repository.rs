@@ -1,5 +1,9 @@
 use crate::client::Client;
-use crate::constant::{ADMIN_ATTRIBUTE, ATTACH, CREATE, DELETE, EMPTY_REQUEST, IN, NO_MATCHING_TUPLE_FOUND, NO_PERMISSION, NO_TUPLE_SPACE_ATTACHED, OUT, PERMISSION, READ, REQUEST_DOESNT_EXIST, TUPLE_IS_EMPTY, TUPLE_SPACE_NOT_FOUND};
+use crate::constant::{
+    ADMIN_ATTRIBUTE, ATTACH, CREATE, DELETE, EMPTY_REQUEST, IN, NO_MATCHING_TUPLE_FOUND,
+    NO_PERMISSION, NO_TUPLE_SPACE_ATTACHED, OUT, PERMISSION, READ, REQUEST_DOESNT_EXIST,
+    TUPLE_IS_EMPTY, TUPLE_SPACE_NOT_FOUND,
+};
 use crate::lexing::Lexer;
 use crate::repository::RequestResponse::{DataResponse, NoResponse, OkResponse, SpaceResponse};
 use futures::executor;
@@ -263,11 +267,12 @@ impl Repository {
                                         executor::block_on(space.tuple_rd(rd_tup))
                                     {
                                         if match_tup.is_empty() {
-                                            response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
+                                            response =
+                                                NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
                                             println!("reading tuples {} from space", match_tup);
                                             tuple_list += &*match_tup.to_string();
-                                            nb_tuples+=1;
+                                            nb_tuples += 1;
                                             if i != 0 {
                                                 tuple_list.push_str(", ");
                                             }
@@ -279,14 +284,13 @@ impl Repository {
                             }
                             if tuple_list.eq(&String::from("(")) {
                                 response
-                            }else {
+                            } else {
                                 if nb_tuples > 1 {
-                                    DataResponse("(".to_owned()+&tuple_list+")")
-                                }else {
+                                    DataResponse("(".to_owned() + &tuple_list + ")")
+                                } else {
                                     DataResponse(tuple_list)
                                 }
                             }
-
                         } else {
                             NoResponse(String::from(NO_PERMISSION))
                         }
@@ -315,10 +319,11 @@ impl Repository {
                                         executor::block_on(space.tuple_in(rd_tup))
                                     {
                                         if match_tup.is_empty() {
-                                            response = NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
+                                            response =
+                                                NoResponse(String::from(NO_MATCHING_TUPLE_FOUND));
                                         } else {
                                             tuple_list += &*match_tup.to_string();
-                                            nb_tuples+=1;
+                                            nb_tuples += 1;
                                             if i != 0 {
                                                 tuple_list.push_str(", ");
                                             }
@@ -330,10 +335,10 @@ impl Repository {
                             }
                             if tuple_list.eq(&String::from("(")) {
                                 response
-                            }else {
+                            } else {
                                 if nb_tuples > 1 {
-                                    DataResponse("(".to_owned()+&tuple_list+")")
-                                }else {
+                                    DataResponse("(".to_owned() + &tuple_list + ")")
+                                } else {
                                     DataResponse(tuple_list)
                                 }
                             }

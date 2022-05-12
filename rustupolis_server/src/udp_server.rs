@@ -1,4 +1,5 @@
 use crate::client::Client;
+use crate::constant::{OK, TUPLE_SPACE_ATTACHED, TUPLE_SPACE_ATTACHED_UPDATED};
 use crate::repository::RequestResponse;
 use crate::Repository;
 use log::warn;
@@ -8,7 +9,6 @@ use std::collections::HashMap;
 use std::io;
 use std::net::SocketAddr;
 use std::str::from_utf8;
-use crate::constant::{OK, TUPLE_SPACE_ATTACHED, TUPLE_SPACE_ATTACHED_UPDATED};
 
 // A token to allow us to identify which event is for the `UdpSocket`.
 const UDP_SOCKET: Token = Token(0);
@@ -45,8 +45,8 @@ pub(crate) fn launch_server(
 
         // Process each event.
         for event in events.iter() {
-            // Validate the token we registered our socket with, in this example it will only ever be one but we
-            // make sure it's valid none the less.
+            // Validate the token we registered our socket with, in this example it will only ever
+            // be one but we make sure it's valid none the less.
             match event.token() {
                 UDP_SOCKET => loop {
                     match socket.recv_from(&mut buf) {
@@ -59,12 +59,18 @@ pub(crate) fn launch_server(
                                     RequestResponse::SpaceResponse(new_client) => {
                                         match client_list.insert(source_address, new_client) {
                                             None => {
-                                                if let Err(e) = socket.send_to(TUPLE_SPACE_ATTACHED.as_ref(), source_address) {
+                                                if let Err(e) = socket.send_to(
+                                                    TUPLE_SPACE_ATTACHED.as_ref(),
+                                                    source_address,
+                                                ) {
                                                     println!("{}", e)
                                                 }
                                             }
                                             Some(_) => {
-                                                if let Err(e) = socket.send_to(TUPLE_SPACE_ATTACHED_UPDATED.as_ref(), source_address) {
+                                                if let Err(e) = socket.send_to(
+                                                    TUPLE_SPACE_ATTACHED_UPDATED.as_ref(),
+                                                    source_address,
+                                                ) {
                                                     println!("{}", e)
                                                 }
                                             }
@@ -76,8 +82,7 @@ pub(crate) fn launch_server(
                                         }
                                     }
                                     RequestResponse::OkResponse() => {
-                                        if let Err(e) = socket
-                                            .send_to(OK.as_ref(), source_address)
+                                        if let Err(e) = socket.send_to(OK.as_ref(), source_address)
                                         {
                                             println!("{}", e)
                                         }

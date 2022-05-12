@@ -6,9 +6,9 @@ pub enum Protocol {
 }
 
 pub struct Server<'a> {
-    protocol: Protocol,
+    protocol:   Protocol,
     ip_address: &'a String,
-    port: &'a String,
+    port:       &'a String,
     repository: &'a Repository,
 }
 
