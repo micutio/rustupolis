@@ -78,7 +78,7 @@ impl<'a> Lexer<'a> {
         let mut is_float = false;
         while self.pos < chars.len() {
             match chars[self.pos] {
-                '0'..='9' => self.pos += 1,
+                '-' |'0'..='9' => self.pos += 1,
                 '.' => {
                     if is_float {
                         // TODO: throw error
