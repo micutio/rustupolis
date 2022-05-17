@@ -15,7 +15,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex, RwLock};
 
 pub struct Repository {
-    tuple_spaces:           Arc<RwLock<HashMap<String, Arc<Mutex<Space<SimpleStore>>>>>>,
+    tuple_spaces: Arc<RwLock<HashMap<String, Arc<Mutex<Space<SimpleStore>>>>>>,
     permission_tuple_space: Arc<Mutex<Space<SimpleStore>>>,
 }
 
@@ -30,7 +30,7 @@ impl Repository {
     pub fn new() -> Repository {
         let permission = Arc::new(Mutex::new(Space::new(SimpleStore::new())));
         let new_repository = Repository {
-            tuple_spaces:           Arc::new(RwLock::new(HashMap::with_capacity(128))),
+            tuple_spaces: Arc::new(RwLock::new(HashMap::with_capacity(128))),
             permission_tuple_space: permission.clone(),
         };
         new_repository
@@ -196,7 +196,7 @@ impl Repository {
                     match tuple_space_found {
                         None => NoResponse(String::from(TUPLE_SPACE_NOT_FOUND)),
                         Some(tuple_space_ref) => {
-                            let mut attributes_list: Vec<String> = Vec::with_capacity(126);
+                            let mut attributes_list: Vec<String> = Vec::new();
                             for index in 2..words.len() {
                                 attributes_list.push(String::from(words[index]));
                             }
