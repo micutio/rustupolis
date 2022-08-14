@@ -28,13 +28,13 @@ doctest = true
 
 [dependencies]
 # clap = "2.33.1"
-error-chain = "0.12.2"
-futures = "0.3.5"
-indextree-ng = "1.0.5"
+error-chain = "0.12"
+futures = "0.3"
+indextree-ng = "1.0"
 log = "0.4.8"
-pretty_env_logger = "0.4.0"
-rand = "0.7.3"
-rand_isaac = "0.2.0"
+pretty_env_logger = "0.4"
+rand = "0.8"
+rand_isaac = "0.3"
 
 [[example]]
 name = "hello_world"
