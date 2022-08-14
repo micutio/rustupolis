@@ -1,6 +1,6 @@
 [package]
 name = "rustupolis_server"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 # For documentation of features see the `mio::features` module.
@@ -17,9 +17,9 @@ net = []
 [dependencies]
 mio = {version = "0.8", features = ["net","os-poll"]}
 rustupolis = { path = "../rustupolis" }
-futures = "0.3.5"
-log = "0.4.8"
-error-chain = "0.12.2"
+futures = "0.3"
+log = "0.4"
+error-chain = "0.12"
 crossbeam = "0.8"
 
 [[test]]
