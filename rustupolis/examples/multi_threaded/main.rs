@@ -26,7 +26,7 @@ fn put_and_read(
     for _i in 0..5 {
         println!("{0} pushing tuple", id);
         let mut strg = "tuple from ".to_string();
-        strg.push_str(&id);
+        strg.push_str(id);
         let int = rng.gen::<i32>();
         let dbl = rng.gen::<f64>();
         let tup = tuple![

@@ -26,7 +26,7 @@ fn test_in() {
     let out_result1 = executor::block_on(out_future1);
 
     if let Err(e) = out_result1 {
-        assert!(false, "{:?}", e)
+        panic!("{:?}", e)
     }
 
     // match insertion_result {
@@ -40,7 +40,7 @@ fn test_in() {
     let out_result2 = executor::block_on(out_future2);
 
     if let Err(e) = out_result2 {
-        assert!(false, "{:?}", e)
+        panic!("{:?}", e)
     }
 
     // retrieve tuple 1 and 2
@@ -49,6 +49,6 @@ fn test_in() {
 
     match retrieval_result {
         Some(ref t) => assert_eq!(t, &tuple![E::str("foo"), E::I(42)]),
-        a => assert!(false, "{:?}", a),
+        a => panic!("{:?}", a),
     };
 }

@@ -30,6 +30,7 @@ fn main() {
     cli.run()
 }
 
+#[allow(clippy::upper_case_acronyms)]
 enum RequiredAction {
     CLOSE,
     DETACH,
@@ -89,12 +90,12 @@ impl Cli {
     fn process_input(&mut self, input: &str) -> RequiredAction {
         use self::RequiredAction::*;
         println!("user echo: {}", input);
-        let tokens: Vec<&str> = input.trim().split_whitespace().collect();
+        let tokens: Vec<&str> = input.split_whitespace().collect();
         if tokens.is_empty() {
             return NONE;
         }
 
-        let command = tokens.get(0);
+        let command = tokens.first();
         match command {
             Some(&"create") => self.cmd_create(&tokens[1..]),
             Some(&"close") => self.cmd_close(),
