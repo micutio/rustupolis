@@ -8,7 +8,7 @@ use std::fmt::{Display, Formatter, Result};
 use std::iter::Iterator;
 
 /// E represents a tuple element.
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum E {
     /// Integer data type.
     ///
@@ -41,6 +41,12 @@ pub enum E {
 }
 
 impl Eq for E {}
+
+impl PartialOrd for E {
+    fn partial_cmp(&self, other: &E) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
 
 impl Ord for E {
     /// Tuple elements have a well-defined ordering. Ordering among values of the same variant is
@@ -176,7 +182,7 @@ impl Tuple {
     /// Returns true if all elements are defined, i.e: none of them are wildcards.
     /// Returns false if the tuple contains any wildcards.
     pub fn is_defined(&self) -> bool {
-        self.0.iter().all(|ref x| x.is_defined())
+        self.0.iter().all(|x| x.is_defined())
     }
 
     /// Returns true if this tuple matches the other.
@@ -186,7 +192,7 @@ impl Tuple {
                 .0
                 .iter()
                 .zip(other.0.iter())
-                .all(|(ref x, ref y): (&E, &E)| x.matches(y))
+                .all(|(x, y): (&E, &E)| x.matches(y))
     }
 
     /// Returns a range over this tuple.
