@@ -35,7 +35,7 @@ impl<'a> Iterator for Lexer<'a> {
         if self.pos >= chars.len() {
             return None;
         }
-        if let E::T(tuple) = Lexer::from_token(&self.match_next(&chars)) {
+        if let E::T(tuple) = Self::from_token(&self.match_next(&chars)) {
             Some(tuple)
         } else {
             Some(tuple![])
@@ -54,13 +54,13 @@ impl<'a> Lexer<'a> {
     fn match_next(&mut self, chars: &[char]) -> Option<Token<'a>> {
         match chars[self.pos] {
             // parse numbers, which can be either negative or positive
-            '-' | '0'..='9' => self.parse_number(&chars),
+            '-' | '0'..='9' => self.parse_number(chars),
             // parse strings that are started and terminated by quote marks
-            '\"' => self.parse_string(&chars),
+            '\"' => self.parse_string(chars),
             // use a special character for wildcards
             '_' => self.parse_wildcard(),
             // parse tuples which are surrounded by parentheses
-            '(' => self.parse_tuple(&chars),
+            '(' => self.parse_tuple(chars),
             ',' => {
                 self.pos += 1;
                 None
@@ -178,7 +178,7 @@ impl<'a> Lexer<'a> {
                 typ: TokenType::Tuple(tokenlist),
                 val: _,
             }) => E::T(Tuple::from_vec(
-                tokenlist.iter().map(|t| Lexer::from_token(t)).collect(),
+                tokenlist.iter().map(Self::from_token).collect(),
             )),
             None => E::None,
         }

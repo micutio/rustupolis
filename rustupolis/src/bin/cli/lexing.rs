@@ -34,7 +34,7 @@ impl<'a> Iterator for Lexer<'a> {
         if self.pos >= chars.len() {
             return None;
         }
-        if let E::T(tuple) = Lexer::from_token(&self.match_next(&chars)) {
+        if let E::T(tuple) = Self::from_token(&self.match_next(&chars)) {
             Some(tuple)
         } else {
             Some(tuple![])
@@ -176,7 +176,7 @@ impl<'a> Lexer<'a> {
                 typ: TokenType::Tuple(tokenlist),
                 val: _,
             }) => E::T(Tuple::from_vec(
-                tokenlist.iter().map(Lexer::from_token).collect(),
+                tokenlist.iter().map(Self::from_token).collect(),
             )),
             None => E::None,
         }

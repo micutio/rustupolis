@@ -22,11 +22,11 @@ fn main() {
     let server_udp = Server::new(server::Protocol::UDP, &ip_address, &port_udp, &repository);
 
     let server_list = vec![server_tcp, server_udp];
-        crossbeam::scope(|scope| {
+    crossbeam::scope(|scope| {
         for server in server_list {
             scope.spawn(move |_| match server.start_server() {
                 Ok(_) => {
-                    println!("{}", "OK ")
+                    println!("OK")
                 }
                 Err(error) => {
                     println!("{}", error)

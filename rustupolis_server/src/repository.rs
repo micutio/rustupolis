@@ -14,9 +14,11 @@ use rustupolis::tuple::{Tuple, E};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, RwLock};
 
+type MutexedStore = Arc<Mutex<Space<SimpleStore>>>;
+
 pub struct Repository {
-    tuple_spaces: Arc<RwLock<HashMap<String, Arc<Mutex<Space<SimpleStore>>>>>>,
-    permission_tuple_space: Arc<Mutex<Space<SimpleStore>>>,
+    tuple_spaces: Arc<RwLock<HashMap<String, MutexedStore>>>,
+    permission_tuple_space: MutexedStore,
 }
 
 pub enum RequestResponse {
@@ -24,6 +26,12 @@ pub enum RequestResponse {
     DataResponse(String),
     OkResponse(),
     NoResponse(String),
+}
+
+impl Default for Repository {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Repository {
@@ -67,7 +75,7 @@ impl Repository {
     pub fn check_permission(
         &self,
         action: &str,
-        attributes: &Vec<String>,
+        attributes: &[String],
         tuple_space_name: Option<&str>,
     ) -> bool {
         let mut permission_space = self.permission_tuple_space.lock().unwrap();
@@ -104,7 +112,7 @@ impl Repository {
         };
     }
 
-    fn compare_attributes(attributes_permission: &E, attributes_client: &Vec<String>) -> bool {
+    fn compare_attributes(attributes_permission: &E, attributes_client: &[String]) -> bool {
         if let E::T(tuple) = attributes_permission {
             let mut attributes_permission_list = Vec::with_capacity(156);
             if let E::S(attribute) = tuple.first() {
@@ -118,7 +126,7 @@ impl Repository {
 
             if attributes_client
                 .iter()
-                .filter(|&x| attributes_permission_list.contains(&x))
+                .filter(|&x| attributes_permission_list.contains(x))
                 .count()
                 > 0
             {
@@ -126,7 +134,7 @@ impl Repository {
             }
             return false;
         }
-        return false;
+        false
     }
 
     pub fn add_permission_list(&self, attributes: Vec<String>, tuple_space_name: &str) {
@@ -144,12 +152,12 @@ impl Repository {
         }
     }
 
-    pub fn add_permission(&self, attribute: &String, action: &str, tuple_space_name: &str) {
+    pub fn add_permission(&self, attribute: &str, action: &str, tuple_space_name: &str) {
         let mut permission_space = self.permission_tuple_space.lock().unwrap();
         match executor::block_on(permission_space.tuple_out(tuple!(
             E::str(tuple_space_name),
             E::str(action),
-            E::T(tuple!(E::S(attribute.clone())))
+            E::T(tuple!(E::S(attribute.to_string())))
         ))) {
             Ok(_) => {}
             Err(error) => {
@@ -164,16 +172,16 @@ impl Repository {
         client_option: Option<&Client>,
     ) -> RequestResponse {
         let words: Vec<&str> = request.split_whitespace().collect();
-        if words.len() != 0 {
+        if !words.is_empty() {
             match words[0] {
                 CREATE => {
                     let attribute_to_create = String::from(words[1]);
-                    if self.check_permission(CREATE, &vec![attribute_to_create], None) {
+                    if self.check_permission(CREATE, &[attribute_to_create], None) {
                         self.add_tuple_space(String::from(words[2]));
                         let mut attributes_list: Vec<String> = Vec::with_capacity(126);
-                        for index in 3..words.len() {
+                        (3..words.len()).for_each(|index| {
                             attributes_list.push(String::from(words[index]));
-                        }
+                        });
                         self.add_permission_list(attributes_list, words[2]);
                         OkResponse()
                     } else {
@@ -183,7 +191,7 @@ impl Repository {
                 DELETE => {
                     let attribute_to_delete = String::from(words[1]);
                     // TODO check attributes
-                    if self.check_permission(DELETE, &vec![attribute_to_delete], Some(words[2])) {
+                    if self.check_permission(DELETE, &[attribute_to_delete], Some(words[2])) {
                         self.remove_tuple_space(words[2]);
                         OkResponse()
                     } else {
@@ -197,9 +205,9 @@ impl Repository {
                         None => NoResponse(String::from(TUPLE_SPACE_NOT_FOUND)),
                         Some(tuple_space_ref) => {
                             let mut attributes_list: Vec<String> = Vec::new();
-                            for index in 2..words.len() {
+                            (2..words.len()).for_each(|index| {
                                 attributes_list.push(String::from(words[index]));
-                            }
+                            });
                             SpaceResponse(Client::new(
                                 tuple_space_ref.clone(),
                                 attributes_list,
@@ -284,12 +292,10 @@ impl Repository {
                             }
                             if tuple_list.eq(&String::from("(")) {
                                 response
+                            } else if nb_tuples > 1 {
+                                DataResponse("(".to_owned() + &tuple_list + ")")
                             } else {
-                                if nb_tuples > 1 {
-                                    DataResponse("(".to_owned() + &tuple_list + ")")
-                                } else {
-                                    DataResponse(tuple_list)
-                                }
+                                DataResponse(tuple_list)
                             }
                         } else {
                             NoResponse(String::from(NO_PERMISSION))
@@ -335,12 +341,10 @@ impl Repository {
                             }
                             if tuple_list.eq(&String::from("(")) {
                                 response
+                            } else if nb_tuples > 1 {
+                                DataResponse("(".to_owned() + &tuple_list + ")")
                             } else {
-                                if nb_tuples > 1 {
-                                    DataResponse("(".to_owned() + &tuple_list + ")")
-                                } else {
-                                    DataResponse(tuple_list)
-                                }
+                                DataResponse(tuple_list)
                             }
                         } else {
                             NoResponse(String::from(NO_PERMISSION))

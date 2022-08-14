@@ -15,11 +15,7 @@ use std::str::from_utf8;
 const SERVER: Token = Token(0);
 
 #[cfg(not(target_os = "wasi"))]
-pub fn launch_server<'a>(
-    ip_address: &String,
-    port: &String,
-    repository: &Repository,
-) -> std::io::Result<()> {
+pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> std::io::Result<()> {
     let address = format!("{}:{}", ip_address, port);
 
     // Setup the TCP server socket.
@@ -81,16 +77,14 @@ pub fn launch_server<'a>(
                 token => {
                     // Maybe received an event for a TCP connection.
                     let done = if let Some(connection) = connections.get_mut(&token) {
-                        match handle_connection_event(
+                        handle_connection_event(
                             poll.registry(),
                             connection,
                             event,
                             &mut clients,
                             repository,
-                        ) {
-                            Ok(result) => result,
-                            Err(_) => true,
-                        }
+                        )
+                        .unwrap_or(true)
                     } else {
                         // Sporadic events happen, we can safely ignore them.
                         false
