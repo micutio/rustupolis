@@ -115,11 +115,9 @@ impl E {
     /// respective position are equal, or one or both of them in a given position is the wildcard
     /// E::Any.
     pub fn matches(&self, other: &E) -> bool {
-        // TODO: Don't use hard-coded error.
-        let error = 0.001;
         match (self, other) {
             (&E::I(ref a), &E::I(ref b)) => a == b,
-            (&E::D(ref a), &E::D(ref b)) => (a - b).abs() < error,
+            (&E::D(ref a), &E::D(ref b)) => a.to_bits() == b.to_bits(),
             (&E::S(ref a), &E::S(ref b)) => a == b,
             (&E::T(ref a), &E::T(ref b)) => a.matches(b),
             (&E::Any, &E::Any) => false,
