@@ -30,6 +30,7 @@ fn main() {
     cli.run()
 }
 
+/// Server-side actions required as a consequence of user actions.
 #[allow(clippy::upper_case_acronyms)]
 enum RequiredAction {
     CLOSE,
