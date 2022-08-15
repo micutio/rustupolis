@@ -1,6 +1,65 @@
-[workspace]
+[package]
+name = "rustupolis"
+version = "0.0.3"
+authors = ["Michael Wagner <wagner.mchl@googlemail.com>"]
+edition = "2021"
+description = "An implementation of the tuple space data structure in Rust."
+repository = "https://github.com/micutio/rustupolis"
+readme = "README.md"
+# Up to five keywords.
+keywords = ["tuple-space", "concurrent", "distributed", "decentralized"]
+categories = ["command-line-utilities", "data-structures"]
+license = "MIT"
 
-members = [
-    "rustupolis",
-	"rustupolis_server"
-]
+[badges]
+travis-ci = { repository = "https://travis-ci.org/Micutio/rustupolis", branch = "master" }
+
+[lib]
+name = "rustupolis"
+path = "src/lib/lib.rs"
+test = true
+doctest = true
+
+[[bin]]
+name = "rustupolis_cli"
+path = "src/bin/cli/cli.rs"
+test = true
+doctest = true
+
+[dependencies]
+# clap = "2.33.1"
+error-chain = "0.12"
+futures = "0.3"
+indextree-ng = "1.0"
+log = "0.4.8"
+pretty_env_logger = "0.4"
+rand = "0.8"
+rand_isaac = "0.3"
+
+[[example]]
+name = "hello_world"
+path = "examples/hello_world/main.rs"
+
+[[example]]
+name = "single_threaded"
+path = "examples/single_threaded/main.rs"
+
+[[example]]
+name = "multi_threaded"
+path = "examples/multi_threaded/main.rs"
+
+[[test]]
+name = "tuple"
+path = "tests/tuple.rs"
+
+[[test]]
+name = "simplestore"
+path = "tests/simplestore.rs"
+
+[[test]]
+name = "wildcard"
+path = "tests/wildcard.rs"
+
+[[test]]
+name = "space"
+path = "tests/space.rs"
