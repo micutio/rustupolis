@@ -105,7 +105,7 @@ impl E {
         E::S(s.into())
     }
 
-    /// Returns true if one or more elements are the wildcard E::Any, recursively.
+    /// Returns false if one or more elements are the wildcard E::Any, recursively.
     pub fn is_defined(&self) -> bool {
         match self {
             E::I(_) => true,
