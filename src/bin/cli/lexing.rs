@@ -60,7 +60,7 @@ impl<'a> Lexer<'a> {
             '_' => self.parse_wildcard(),
             // parse tuples which are surrounded by parentheses
             '(' => self.parse_tuple(chars),
-            ',' => {
+            ',' | ' ' => {
                 self.pos += 1;
                 None
             }
