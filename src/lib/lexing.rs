@@ -3,14 +3,15 @@
 //! Parsing of strings into instances of Tuple
 //! Heavily inspired by https://users.rust-lang.org/t/an-suggestions-improvements-for-my-lexer/6081
 
-use rustupolis::tuple::{Tuple, E};
+use crate::tuple::{Tuple, E};
+use std::{error, fmt, result};
 
 #[derive(Debug)]
 enum TokenType<'a> {
     Integer,
     Float,
     String,
-    Tuple(Vec<Option<Token<'a>>>),
+    Tuple(Vec<Token<'a>>),
     Wildcard,
 }
 
@@ -18,6 +19,19 @@ enum TokenType<'a> {
 struct Token<'a> {
     typ: TokenType<'a>,
     val: &'a str,
+}
+
+type Result<Token> = result::Result<Token, ParseError>;
+
+#[derive(Debug, Clone)]
+struct ParseError;
+
+impl error::Error for ParseError {}
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "unable to parse token")
+    }
 }
 
 pub struct Lexer<'a> {
@@ -32,12 +46,19 @@ impl<'a> Iterator for Lexer<'a> {
         let chars = self.buf.chars().collect::<Vec<char>>();
 
         if self.pos >= chars.len() {
+            eprintln!("error: incomplete tuple");
             return None;
         }
-        if let E::T(tuple) = Self::from_token(&self.match_next(&chars)) {
-            Some(tuple)
-        } else {
-            Some(tuple![])
+        let next_token = &self.match_next(&chars);
+        match next_token {
+            Ok(token) => {
+                if let E::T(tuple) = Self::from_token(token) {
+                    Some(tuple)
+                } else {
+                    Some(tuple![])
+                }
+            }
+            Err(_) => None,
         }
     }
 }
@@ -50,7 +71,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn match_next(&mut self, chars: &[char]) -> Option<Token<'a>> {
+    fn match_next(&mut self, chars: &[char]) -> Result<Token<'a>> {
         match chars[self.pos] {
             // parse numbers, which can be either negative or positive
             '-' | '0'..='9' => self.parse_number(chars),
@@ -62,26 +83,33 @@ impl<'a> Lexer<'a> {
             '(' => self.parse_tuple(chars),
             ',' | ' ' => {
                 self.pos += 1;
-                None
+                self.match_next(chars)
             }
             _ => {
                 println!("invalid symbol {}", chars[self.pos]);
                 self.pos += 1;
-                None
+                self.match_next(chars)
             }
         }
     }
 
-    fn parse_number(&mut self, chars: &[char]) -> Option<Token<'a>> {
+    fn parse_number(&mut self, chars: &[char]) -> Result<Token<'a>> {
         let start = self.pos;
         let mut is_float = false;
         while self.pos < chars.len() {
             match chars[self.pos] {
                 '0'..='9' => self.pos += 1,
+                '-' => {
+                    if self.pos == start {
+                        self.pos += 1
+                    } else {
+                        // only allow a minus at the end of a number
+                        break;
+                    }
+                }
                 '.' => {
                     if is_float {
-                        // TODO: throw error
-                        panic!("float number with double decimal points");
+                        return Err(ParseError);
                     } else {
                         is_float = true;
                         self.pos += 1
@@ -96,13 +124,13 @@ impl<'a> Lexer<'a> {
         } else {
             TokenType::Integer
         };
-        Some(Token {
+        Ok(Token {
             typ,
             val: &self.buf[start..self.pos],
         })
     }
 
-    fn parse_string(&mut self, chars: &[char]) -> Option<Token<'a>> {
+    fn parse_string(&mut self, chars: &[char]) -> Result<Token<'a>> {
         self.pos += 1;
         let start = self.pos;
         while chars[self.pos] != '\"' {
@@ -110,75 +138,75 @@ impl<'a> Lexer<'a> {
 
             if self.pos >= chars.len() {
                 eprintln!("error: incomplete string!");
-                return None;
+                return Err(ParseError);
             }
         }
+        let end = self.pos;
         self.pos += 1;
 
         // println!("found string from {} to {}", start, self.pos);
         // panic!();
 
-        Some(Token {
+        Ok(Token {
             typ: TokenType::String,
-            val: &self.buf[start..self.pos],
+            val: &self.buf[start..end],
         })
     }
 
-    fn parse_wildcard(&mut self) -> Option<Token<'a>> {
+    fn parse_wildcard(&mut self) -> Result<Token<'a>> {
         let start = self.pos;
         self.pos += 1;
-        Some(Token {
+        Ok(Token {
             typ: TokenType::Wildcard,
             val: &self.buf[start - 1..self.pos],
         })
     }
 
-    fn parse_tuple(&mut self, chars: &[char]) -> Option<Token<'a>> {
+    fn parse_tuple(&mut self, chars: &[char]) -> Result<Token<'a>> {
         let start = self.pos;
         self.pos += 1;
-        let mut tuple_items: Vec<Option<Token<'a>>> = Vec::new();
+        let mut tuple_items: Vec<Token<'a>> = Vec::new();
         while chars[self.pos] != ')' {
-            if let Some(token_opt) = self.match_next(chars) {
-                tuple_items.push(Some(token_opt));
-            }
+            let token = self.match_next(chars)?;
+            tuple_items.push(token);
+
             if self.pos >= chars.len() {
                 eprintln!("error: incomplete tuple");
-                return None;
+                return Err(ParseError);
             }
             // eprintln!("pointer: {}", self.pos);
         }
         self.pos += 1;
-        Some(Token {
+        Ok(Token {
             typ: TokenType::Tuple(tuple_items),
             val: &self.buf[start..self.pos],
         })
     }
 
-    fn from_token(token_opt: &Option<Token>) -> E {
-        match token_opt {
-            Some(Token {
+    fn from_token(token: &Token<'a>) -> E {
+        match token {
+            Token {
                 typ: TokenType::Integer,
                 val,
-            }) => E::I(val.parse::<i32>().unwrap()),
-            Some(Token {
+            } => E::I(val.parse::<i32>().unwrap()),
+            Token {
                 typ: TokenType::Float,
                 val,
-            }) => E::D(val.parse::<f64>().unwrap()),
-            Some(Token {
+            } => E::D(val.parse::<f64>().unwrap()),
+            Token {
                 typ: TokenType::String,
                 val,
-            }) => E::S((*val).to_string()),
-            Some(Token {
+            } => E::S((*val).to_string()),
+            Token {
                 typ: TokenType::Wildcard,
                 val: _,
-            }) => E::Any,
-            Some(Token {
+            } => E::Any,
+            Token {
                 typ: TokenType::Tuple(tokenlist),
                 val: _,
-            }) => E::T(Tuple::from_vec(
+            } => E::T(Tuple::from_vec(
                 tokenlist.iter().map(Self::from_token).collect(),
             )),
-            None => E::None,
         }
     }
 }

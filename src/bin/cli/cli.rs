@@ -9,16 +9,13 @@
 //  - input parsing loop
 //  - processing of parsed commands
 
-#[macro_use]
 extern crate rustupolis;
-
-mod lexing;
 
 use std::io;
 use std::io::Write;
 
 use futures::executor;
-use lexing::Lexer;
+use rustupolis::lexing::Lexer;
 use rustupolis::space::Space;
 use rustupolis::store::SimpleStore;
 use rustupolis::tuple::Tuple;
