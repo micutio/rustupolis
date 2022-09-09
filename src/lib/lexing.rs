@@ -46,7 +46,6 @@ impl<'a> Iterator for Lexer<'a> {
         let chars = self.buf.chars().collect::<Vec<char>>();
 
         if self.pos >= chars.len() {
-            eprintln!("error: incomplete tuple");
             return None;
         }
         let next_token = &self.match_next(&chars);
