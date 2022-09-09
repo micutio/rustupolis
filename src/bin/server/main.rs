@@ -5,7 +5,6 @@ use crate::server::Server;
 
 mod client;
 mod constant;
-mod lexing;
 pub mod repository;
 pub mod server;
 mod tcp_server;

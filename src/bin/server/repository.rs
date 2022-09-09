@@ -4,9 +4,9 @@ use crate::constant::{
     NO_PERMISSION, NO_TUPLE_SPACE_ATTACHED, OUT, PERMISSION, READ, REQUEST_DOESNT_EXIST,
     TUPLE_IS_EMPTY, TUPLE_SPACE_NOT_FOUND,
 };
-use crate::lexing::Lexer;
 use crate::repository::RequestResponse::{DataResponse, NoResponse, OkResponse, SpaceResponse};
 use futures::executor;
+use rustupolis::lexing::Lexer;
 use rustupolis::space::Space;
 use rustupolis::store::SimpleStore;
 use rustupolis::tuple;
