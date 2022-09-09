@@ -25,6 +25,7 @@ name = "rustupolis_cli"
 path = "src/bin/cli/cli.rs"
 test = true
 doctest = true
+required-features = ["cli"]
 
 [[bin]]
 name = "rustupolis_server"
@@ -46,6 +47,7 @@ mio = {version = "0.8", features = ["net","os-poll"], optional=true}
 crossbeam = {version = "0.8", optional=true}
 
 [features]
+cli = []
 server = ["mio", "crossbeam"]
 
 [[example]]
