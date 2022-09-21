@@ -1,7 +1,8 @@
 //! Module Lexing
 //!
 //! Parsing of strings into instances of Tuple
-//! Heavily inspired by https://users.rust-lang.org/t/an-suggestions-improvements-for-my-lexer/6081
+//! Heavily inspired by
+//!     <https://users.rust-lang.org/t/an-suggestions-improvements-for-my-lexer/6081>
 
 use crate::tuple::{Tuple, E};
 use std::{error, fmt, result};
@@ -63,7 +64,8 @@ impl<'a> Iterator for Lexer<'a> {
 }
 
 impl<'a> Lexer<'a> {
-    pub fn new(buffer: &str) -> Lexer {
+    #[must_use]
+    pub const fn new(buffer: &str) -> Lexer {
         Lexer {
             buf: buffer,
             pos: 0,
@@ -77,7 +79,7 @@ impl<'a> Lexer<'a> {
             // parse strings that are started and terminated by quote marks
             '\"' => self.parse_string(chars),
             // use a special character for wildcards
-            '_' => self.parse_wildcard(),
+            '_' => Ok(self.parse_wildcard()),
             // parse tuples which are surrounded by parentheses
             '(' => self.parse_tuple(chars),
             ',' | ' ' => {
@@ -100,7 +102,7 @@ impl<'a> Lexer<'a> {
                 '0'..='9' => self.pos += 1,
                 '-' => {
                     if self.pos == start {
-                        self.pos += 1
+                        self.pos += 1;
                     } else {
                         // only allow a minus at the end of a number
                         break;
@@ -109,10 +111,9 @@ impl<'a> Lexer<'a> {
                 '.' => {
                     if is_float {
                         return Err(ParseError);
-                    } else {
-                        is_float = true;
-                        self.pos += 1
                     }
+                    is_float = true;
+                    self.pos += 1;
                 }
                 _ => break,
             }
@@ -152,13 +153,13 @@ impl<'a> Lexer<'a> {
         })
     }
 
-    fn parse_wildcard(&mut self) -> Result<Token<'a>> {
+    fn parse_wildcard(&mut self) -> Token<'a> {
         let start = self.pos;
         self.pos += 1;
-        Ok(Token {
+        Token {
             typ: TokenType::Wildcard,
             val: &self.buf[start - 1..self.pos],
-        })
+        }
     }
 
     fn parse_tuple(&mut self, chars: &[char]) -> Result<Token<'a>> {

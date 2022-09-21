@@ -33,6 +33,8 @@ impl<T> Tree<T> {
 
     /// Public interface for inserting an item into the wildcard tree,
     /// along a tuple 'path'.
+    /// # Errors
+    /// `IndexTreeError` if inserting into the wildcard tree fails
     pub fn insert(&mut self, tup: Tuple, item: T) -> Result<(), Error> {
         debug!("insert {:?}", tup);
         let id = self.root_id;
@@ -44,6 +46,7 @@ impl<T> Tree<T> {
         // If we have an empty tuple, insert the item in a new leaf node of NodeId.
         if tup.is_empty() {
             let child_id = self.arena.new_node(Node::Leaf(Some(item)));
+            // TODO: More expressive error description
             id.append(child_id, &mut self.arena)
                 .chain_err(|| "insert failed")?;
             trace!("do_insert appending {:?} child of {:?}", child_id, id);

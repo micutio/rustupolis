@@ -24,24 +24,28 @@ pub trait Store {
 pub struct SimpleStore(BTreeSet<Tuple>);
 
 impl SimpleStore {
+    #[must_use]
     pub fn new() -> SimpleStore {
         SimpleStore(BTreeSet::new())
     }
 
+    #[must_use]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.len() == 0
     }
 }
 
-/// Implements the store trait for SimpleStore.
+/// Implements the store trait for `SimpleStore`.
 impl Store for SimpleStore {
     /// Insert the tuple into the space if it is defined.
     fn out(&mut self, tup: Tuple) -> Result<()> {
         if !tup.is_defined() {
+            // TODO: Replace with custom error
             bail!("cannot write an undefined tuple");
         }
         self.0.insert(tup);
