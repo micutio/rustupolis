@@ -70,7 +70,7 @@ where
             Ok(None) => {
                 trace!("matched Ok(None)");
                 let (tx, rx) = channel();
-                let resultat = self.pending.insert(tup.clone(), tx);
+                let resultat = self.pending.insert(tup, tx);
                 trace!("resultat {:?}", resultat);
                 if let Err(e) = resultat {
                     trace!("return match::Done(Err(...))");
@@ -90,7 +90,7 @@ where
         match self.store.rdp(&tup) {
             Ok(None) => {
                 let (tx, rx) = channel();
-                if let Err(e) = self.pending.insert(tup.clone(), tx) {
+                if let Err(e) = self.pending.insert(tup, tx) {
                     Match::Done(Err(Error::with_chain(e, "send failed")))
                 } else {
                     Match::Pending(rx)
