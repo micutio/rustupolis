@@ -36,11 +36,12 @@ pub trait Store {
 
 /// A simple, naive in-memory implementation of a Store.
 #[derive(Default)]
+#[allow(clippy::module_name_repetitions)]
 pub struct SimpleStore(BTreeSet<Tuple>);
 
 impl SimpleStore {
     #[must_use]
-    pub fn new() -> SimpleStore {
+    pub fn new() -> Self {
         SimpleStore(BTreeSet::new())
     }
 

@@ -41,6 +41,7 @@ impl<T> Tree<T> {
         self.do_insert(id, tup, item)
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn do_insert(&mut self, id: NodeId, tup: Tuple, item: T) -> Result<(), Error> {
         trace!("do_insert {:?} {:?}", id, tup);
         // If we have an empty tuple, insert the item in a new leaf node of NodeId.
@@ -81,6 +82,7 @@ impl<T> Tree<T> {
         self.do_take(id, tup)
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn do_take(&mut self, id: NodeId, tup: Tuple) -> Option<T> {
         trace!("take {:?} {:?}", id, tup);
         if tup.is_empty() {
