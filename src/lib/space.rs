@@ -10,7 +10,7 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::task::{Context, Poll};
 
 use crate::error::Error;
-use crate::store::{InsertUndefinedTuple, Store};
+use crate::store::Store;
 use crate::tuple::Tuple;
 use crate::wildcard;
 

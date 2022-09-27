@@ -13,15 +13,14 @@ use std::thread;
 use rand::{Rng, SeedableRng};
 use rand_isaac::isaac64::Isaac64Rng;
 
-use rustupolis::error::Result;
-use rustupolis::store::{SimpleStore, Store};
+use rustupolis::store::{InsertUndefinedTuple, SimpleStore, Store};
 use rustupolis::tuple::E;
 
 fn put_and_read(
     rng: &mut rand_isaac::isaac64::Isaac64Rng,
     id: &str,
     t_store: std::sync::Arc<std::sync::Mutex<rustupolis::store::SimpleStore>>,
-) -> Result<()> {
+) -> std::result::Result<(), InsertUndefinedTuple> {
     let mut t_store = t_store.lock().unwrap();
     for _i in 0..5 {
         println!("{0} pushing tuple", id);
@@ -41,7 +40,7 @@ fn put_and_read(
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_store.rdp(&tuple![E::Any, E::Any, E::Any, E::Any])?;
+        let tup = t_store.rdp(&tuple![E::Any, E::Any, E::Any, E::Any]);
         println!("{:?}", tup);
     }
 

@@ -29,7 +29,7 @@ fn test_rdp() {
     let tup3 = tuple![E::D(3.143), E::Any];
 
     ss.out(tup1).unwrap();
-    let tup4 = ss.rdp(&tup2).unwrap().unwrap();
+    let tup4 = ss.rdp(&tup2).unwrap();
 
     assert!(tup3.matches(&tup4));
 }
@@ -46,7 +46,7 @@ fn test_inp() {
     let tup4 = ss.inp(&tup2);
     assert_eq!(ss.len(), 0);
 
-    match tup4.unwrap() {
+    match tup4 {
         Some(ref x) => assert!(tup3.matches(x)),
         None => panic!(),
     }
@@ -59,7 +59,7 @@ fn test_empty_tuple() {
     let mut ss = SimpleStore::new();
     let tup1 = tuple![];
     ss.out(tup1.clone()).unwrap();
-    assert_eq!(ss.inp(&tup1).unwrap(), Some(tup1.clone()));
+    assert_eq!(ss.inp(&tup1), Some(tup1.clone()));
 }
 
 #[test]
@@ -67,9 +67,9 @@ fn test_contains_empty_tuple() {
     let mut ss = SimpleStore::new();
     let tup1 = tuple![E::T(tuple![])];
     ss.out(tup1.clone()).unwrap();
-    assert_eq!(ss.inp(&tuple![E::Any]).unwrap(), Some(tup1.clone()));
+    assert_eq!(ss.inp(&tuple![E::Any]), Some(tup1.clone()));
     ss.out(tup1.clone()).unwrap();
-    assert_eq!(ss.inp(&tuple![E::T(tuple![])]).unwrap(), Some(tup1));
+    assert_eq!(ss.inp(&tuple![E::T(tuple![])]), Some(tup1));
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn test_match_defined() {
     let mut ss = SimpleStore::new();
     let tup1 = tuple![E::I(123)];
     ss.out(tup1.clone()).unwrap();
-    assert_eq!(ss.inp(&tup1).unwrap(), Some(tup1.clone()));
+    assert_eq!(ss.inp(&tup1), Some(tup1.clone()));
 }
 
 #[test]
@@ -85,5 +85,5 @@ fn test_match_nested() {
     let mut ss = SimpleStore::new();
     let tup1 = tuple![E::I(123), E::T(tuple![E::str("hello")])];
     ss.out(tup1.clone()).unwrap();
-    assert_eq!(ss.inp(&tup1).unwrap(), Some(tup1.clone()));
+    assert_eq!(ss.inp(&tup1), Some(tup1.clone()));
 }

@@ -23,9 +23,14 @@ impl std::fmt::Display for InsertUndefinedTuple {
 pub trait Store {
     /// Read a matching tuple and remove it atomically.rust idiomatic error handlingrust idiomatic error handling
     fn inp(&mut self, tup: &Tuple) -> Option<Tuple>;
+
     /// Read a matching tuple.
     fn rdp(&mut self, tup: &Tuple) -> Option<Tuple>;
+
     /// Write a tuple.
+    ///
+    /// # Errors
+    /// `InsertUndefinedTuple` in the attempt of inserting an undefined tuple into the space.
     fn out(&mut self, tup: Tuple) -> std::result::Result<(), InsertUndefinedTuple>;
 }
 

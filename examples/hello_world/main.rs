@@ -32,7 +32,7 @@ fn main() {
     print!("inp(Any, Any) -> ");
     let tup4 = t_store.inp(&tuple![E::S("Hello".to_string()), E::Any]);
 
-    match tup4.unwrap() {
+    match tup4 {
         Some(x) => {
             println!("{:?}", x);
         }
