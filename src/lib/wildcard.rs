@@ -14,7 +14,7 @@ pub enum Node<T> {
 /// associated with a pending wildcard.
 /// Used by Space for coordination.
 pub struct Tree<T> {
-    arena: Arena<Node<T>>,
+    arena:   Arena<Node<T>>,
     root_id: NodeId,
 }
 
@@ -62,15 +62,14 @@ impl<T> Tree<T> {
                 _ => false,
             });
         // Finally continue inserting with the rest of the tuple.
-        match next {
-            Some(id) => self.do_insert(id, tup.rest(), item),
-            None => {
-                let child_id = self.arena.new_node(Node::Path(tup.first().clone()));
-                id.append(child_id, &mut self.arena)
-                    .chain_err(|| "insert failed")?;
-                trace!("do_insert appending {:?} child of {:?}", child_id, id);
-                self.do_insert(child_id, tup.rest(), item)
-            }
+        if let Some(id) = next {
+            self.do_insert(id, tup.rest(), item)
+        } else {
+            let child_id = self.arena.new_node(Node::Path(tup.first().clone()));
+            id.append(child_id, &mut self.arena)
+                .chain_err(|| "insert failed")?;
+            trace!("do_insert appending {:?} child of {:?}", child_id, id);
+            self.do_insert(child_id, tup.rest(), item)
         }
     }
 

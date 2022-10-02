@@ -50,16 +50,13 @@ impl<'a> Iterator for Lexer<'a> {
             return None;
         }
         let next_token = &self.match_next(&chars);
-        match next_token {
-            Ok(token) => {
-                if let E::T(tuple) = Self::from_token(token) {
-                    Some(tuple)
-                } else {
-                    Some(tuple![])
-                }
+        next_token.as_ref().map_or(None, |token| {
+            if let E::T(tuple) = Self::from_token(token) {
+                Some(tuple)
+            } else {
+                Some(tuple![])
             }
-            Err(_) => None,
-        }
+        })
     }
 }
 
