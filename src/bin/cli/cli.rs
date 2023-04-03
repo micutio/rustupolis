@@ -52,8 +52,8 @@ enum RequiredAction {
 /// Future versions are planned to include persistent sessions (file or daemon-based) and complete
 /// support for asynchronous operations.
 struct Cli {
-    stdin: io::Stdin,
-    stdout: io::Stdout,
+    stdin:      io::Stdin,
+    stdout:     io::Stdout,
     tuplespace: Option<Space<SimpleStore>>,
 }
 
@@ -92,15 +92,13 @@ impl Cli {
     ///
     /// - `attach` - re-connect to a running tuple space session
     /// - `detach` - close the CLI, but keep the tuple space server running in the background
-    ///
     // TODO: Keep the list updated.
     fn process_input(&mut self, input: &str) -> RequiredAction {
-        println!("user echo: {}", input);
         let tokens: Vec<&str> = input.split_whitespace().collect();
+        println!("user echo: {input}");
         if tokens.is_empty() {
             return RequiredAction::NONE;
         }
-
         let command = tokens.first();
         match command {
             Some(&"create") => self.cmd_create(&tokens[1..]),
@@ -121,7 +119,7 @@ impl Cli {
     fn cmd_create(&mut self, parameters: &[&str]) -> RequiredAction {
         println!("creation parameters:");
         for p in parameters {
-            println!("{}", p);
+            println!("{p}");
         }
 
         if self.tuplespace.is_none() {
@@ -158,12 +156,9 @@ impl Cli {
                     if !t.is_empty() {
                         if t.is_defined() {
                             if let Err(e) = executor::block_on(space.tuple_out(t)) {
-                                eprintln!(
-                                    "Cannot push tuple into space! Encountered error {:?}",
-                                    e
-                                );
+                                eprintln!("Cannot push tuple into space! Encountered error {e:?}");
                             } else {
-                                println!("pushed tuple(s) {} into tuple space", param_list);
+                                println!("pushed tuple(s) {param_list} into tuple space");
                             }
                         } else {
                             eprintln!(
@@ -187,12 +182,12 @@ impl Cli {
                 let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
                 for rd_tup in tuples {
                     if !rd_tup.is_empty() {
-                        println!("reading tuple matching {} from space", rd_tup);
+                        println!("reading tuple matching {rd_tup} from space");
                         if let Some(match_tup) = executor::block_on(space.tuple_rd(rd_tup)) {
                             if match_tup.is_empty() {
                                 eprintln!("No matching tuple could be found.");
                             } else {
-                                println!("found match: {}", match_tup);
+                                println!("found match: {match_tup}");
                             }
                         }
                     }
@@ -213,12 +208,12 @@ impl Cli {
                 let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
                 for rd_tup in tuples {
                     if !rd_tup.is_empty() {
-                        println!("pulling in tuple matching {} from space", rd_tup);
+                        println!("pulling in tuple matching {rd_tup} from space");
                         if let Some(match_tup) = executor::block_on(space.tuple_in(rd_tup)) {
                             if match_tup.is_empty() {
                                 eprintln!("No matching tuple could be found.");
                             } else {
-                                println!("found match: {}", match_tup);
+                                println!("found match: {match_tup}");
                             }
                         }
                     }
