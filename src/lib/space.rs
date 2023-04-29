@@ -27,7 +27,7 @@ impl Future for Match {
         match &*self {
             Match::Done(Ok(result)) => Poll::Ready(result.clone()),
             Match::Done(Err(e)) => {
-                eprintln!("error polling Match: {:?}", e);
+                eprintln!("error polling Match: {e:?}");
                 Poll::from(None)
             }
             // Match::Pending(ref rx) => rx.poll().map_err(|()| "receive failed".into()),
@@ -37,7 +37,7 @@ impl Future for Match {
                 match receiver_poll {
                     Ok(tup) => Poll::from(Some(tup)),
                     Err(e) => {
-                        eprintln!("Match::poll encountered error: {:?}", e);
+                        eprintln!("Match::poll encountered error: {e:?}");
                         Poll::from(None)
                     }
                 }

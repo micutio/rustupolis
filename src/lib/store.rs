@@ -41,7 +41,7 @@ pub struct SimpleStore(BTreeSet<Tuple>);
 
 impl SimpleStore {
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         SimpleStore(BTreeSet::new())
     }
 
@@ -92,13 +92,13 @@ impl Store for SimpleStore {
         }
         let mut result = None;
         for m in self.0.range(tup.range()) {
-            println!("check whether {} matches {}", tup, m);
+            println!("check whether {tup} matches {m}");
             if tup.matches(m) {
                 result = Some(m.clone());
                 break;
             }
         }
-        println!("result: {:?}", result);
+        println!("result: {result:?}");
         if let Some(ref m) = result {
             return self.0.take(m);
         }

@@ -62,10 +62,12 @@ impl Ord for E {
             (&E::None, &E::None) => Ordering::Equal,
             (&E::None, _) => Ordering::Greater,
             (_, &E::None) => Ordering::Less,
-            (&E::I(ref a), &E::I(ref b)) => a.cmp(b),
+            (E::I(a), E::I(b)) => {
+                a.cmp(b)
+            },
             (&E::I(_), _) => Ordering::Less,
             (_, &E::I(_)) => Ordering::Greater,
-            (&E::D(ref a), &E::D(ref b)) => {
+            (E::D(a), E::D(b)) => {
                 if a < b {
                     Ordering::Less
                 } else if a > b {
@@ -76,10 +78,10 @@ impl Ord for E {
             }
             (&E::D(_), _) => Ordering::Less,
             (_, &E::D(_)) => Ordering::Greater,
-            (&E::S(ref a), &E::S(ref b)) => a.cmp(b),
+            (E::S(a), E::S(b)) => a.cmp(b),
             (&E::S(_), _) => Ordering::Less,
             (_, &E::S(_)) => Ordering::Greater,
-            (&E::T(ref a), &E::T(ref b)) => a.cmp(b),
+            (E::T(a), E::T(b)) => a.cmp(b),
         }
     }
 }
@@ -127,10 +129,10 @@ impl E {
     pub fn matches(&self, other: &E) -> bool {
         #[allow(clippy::match_same_arms)]
         match (self, other) {
-            (&E::I(ref a), &E::I(ref b)) => a == b,
-            (&E::D(ref a), &E::D(ref b)) => a.to_bits() == b.to_bits(),
-            (&E::S(ref a), &E::S(ref b)) => a == b,
-            (&E::T(ref a), &E::T(ref b)) => a.matches(b),
+            (E::I(a), E::I(b)) => a == b,
+            (E::D(a), E::D(b)) => a.to_bits() == b.to_bits(),
+            (E::S(a), E::S(b)) => a == b,
+            (E::T(a), E::T(b)) => a.matches(b),
             (&E::Any, &E::Any) => false,
             (&E::Any, &E::None) => false,
             (&E::Any, _) => true,
@@ -226,7 +228,7 @@ impl Tuple {
                 .iter()
                 .map(|x| match x {
                     &E::Any => E::None,
-                    &E::T(ref t) => E::T(t.terminator()),
+                    E::T(t) => E::T(t.terminator()),
                     e => e.clone(),
                 })
                 .collect::<Vec<E>>(),

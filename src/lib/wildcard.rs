@@ -85,13 +85,9 @@ impl<T> Tree<T> {
     fn do_take(&mut self, id: NodeId, tup: Tuple) -> Option<T> {
         trace!("take {:?} {:?}", id, tup);
         if tup.is_empty() {
-            let child_id = match id
+            let Some(child_id) = id
                 .children(&self.arena)
-                .find(|child_id| matches!(self.arena[*child_id].data, Node::Leaf(_)))
-            {
-                Some(child_id) => child_id,
-                None => return None,
-            };
+                .find(|child_id| matches!(self.arena[*child_id].data, Node::Leaf(_))) else { return None };
             let result = match self.arena[child_id].data {
                 Node::Leaf(ref mut item) => item.take(),
                 _ => return None,
