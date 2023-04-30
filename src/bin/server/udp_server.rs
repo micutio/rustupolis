@@ -23,12 +23,12 @@ pub(crate) fn launch_server(
     let mut events = Events::with_capacity(126);
 
     let address = format!("{}:{}", ip_address, port);
+
     // Setup the UDP server socket.
     let addr = address.parse().unwrap();
-
     let mut socket = UdpSocket::bind(addr)?;
-
     let mut client_list: HashMap<SocketAddr, Client> = HashMap::new();
+
     // Register our socket with the token defined above and an interest in being
     // `READABLE`.
     poll.registry()
@@ -46,7 +46,7 @@ pub(crate) fn launch_server(
         // Process each event.
         for event in events.iter() {
             // Validate the token we registered our socket with, in this example it will only ever
-            // be one but we make sure it's valid none the less.
+            // be one but we make sure it's valid nonetheless.
             match event.token() {
                 UDP_SOCKET => loop {
                     match socket.recv_from(&mut buf) {
@@ -63,7 +63,7 @@ pub(crate) fn launch_server(
                                                     TUPLE_SPACE_ATTACHED.as_ref(),
                                                     source_address,
                                                 ) {
-                                                    println!("{}", e)
+                                                    log::error!("{e}")
                                                 }
                                             }
                                             Some(_) => {
@@ -71,27 +71,27 @@ pub(crate) fn launch_server(
                                                     TUPLE_SPACE_ATTACHED_UPDATED.as_ref(),
                                                     source_address,
                                                 ) {
-                                                    println!("{}", e)
+                                                    log::error!("{e}")
                                                 }
                                             }
                                         };
                                     }
                                     RequestResponse::NoResponse(x) => {
                                         if let Err(e) = socket.send_to(x.as_ref(), source_address) {
-                                            println!("{}", e)
+                                            log::error!("{e}")
                                         }
                                     }
                                     RequestResponse::OkResponse() => {
                                         if let Err(e) = socket.send_to(OK.as_ref(), source_address)
                                         {
-                                            println!("{}", e)
+                                            log::error!("{e}")
                                         }
                                     }
                                     RequestResponse::DataResponse(tuple_list) => {
                                         if let Err(e) =
                                             socket.send_to(tuple_list.as_ref(), source_address)
                                         {
-                                            println!("{}", e)
+                                            log::error!("{e}")
                                         }
                                     }
                                 }

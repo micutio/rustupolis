@@ -23,12 +23,13 @@ pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> s
 
     // Create a poll instance.
     let mut poll = Poll::new()?;
+
     // Create storage for events.
     let mut events = Events::with_capacity(128);
 
     let mut server = TcpListener::bind(addr)?;
 
-    // Register the server with poll we can receive events for it.
+    // Register the server with poll so we can receive events for it.
     poll.registry()
         .register(&mut server, SERVER, Interest::READABLE)?;
 
@@ -48,7 +49,7 @@ pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> s
         for event in events.iter() {
             match event.token() {
                 SERVER => loop {
-                    // Received an event for the TCP server socket, which indicates we can accept an
+                    // Received an event for the TCP server socket, which indicates we can accept a
                     // connection.
                     let (mut connection, address) = match server.accept() {
                         Ok((connection, address)) => (connection, address),
@@ -63,7 +64,7 @@ pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> s
                         }
                     };
 
-                    println!("Accepted connection from: {}", address);
+                    log::info!("accepted connection from: {}", address);
 
                     let token = next(&mut unique_token);
                     poll.registry().register(
@@ -87,8 +88,10 @@ pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> s
                         .unwrap_or(true)
                     } else {
                         // Sporadic events happen, we can safely ignore them.
+                        log::debug!("server event: {event:?}");
                         false
                     };
+
                     if done {
                         if let Some(mut connection) = connections.remove(&token) {
                             poll.registry().deregister(&mut connection)?;
@@ -156,44 +159,45 @@ fn handle_connection_event(
             let received_data = &received_data[..bytes_read];
             if let Ok(str_buf) = from_utf8(received_data) {
                 let client_option = clients.get(&event.token());
-                println!("{}", String::from(str_buf.trim_end()));
-                let result =
-                    repository.manage_request(String::from(str_buf.trim_end()), client_option);
+                let client_request = String::from(str_buf.trim_end());
+                log::debug!("client request: {}", client_request);
+
+                let result = repository.manage_request(client_request, client_option);
                 match result {
                     RequestResponse::SpaceResponse(client) => {
                         match clients.insert(event.token(), client) {
                             None => {
                                 if let Err(e) = connection.write(TUPLE_SPACE_ATTACHED.as_ref()) {
-                                    println!("{}", e)
+                                    log::error!("{e}")
                                 }
                             }
                             Some(_) => {
                                 if let Err(e) =
                                     connection.write(TUPLE_SPACE_ATTACHED_UPDATED.as_ref())
                                 {
-                                    println!("{}", e)
+                                    log::error!("{e}")
                                 }
                             }
                         };
                     }
                     RequestResponse::NoResponse(x) => {
                         if let Err(e) = connection.write(x.as_ref()) {
-                            println!("{}", e)
+                            log::error!("{e}")
                         }
                     }
                     RequestResponse::OkResponse() => {
                         if let Err(e) = connection.write(OK.as_ref()) {
-                            println!("{}", e)
+                            log::error!("{e}")
                         }
                     }
                     RequestResponse::DataResponse(tuple_list) => {
                         if let Err(e) = connection.write(tuple_list.as_ref()) {
-                            println!("{}", e)
+                            log::error!("{e}")
                         }
                     }
                 }
             } else {
-                println!("Received (none UTF-8) data: {:?}", received_data);
+                log::info!("Received (non-UTF-8) data: {:?}", received_data);
             }
         }
 

@@ -1,3 +1,9 @@
+//! # Rustupolis TCP/UDP Server
+//!
+//! Example main class for launching rustupolis servers
+
+// TODO: Add command line parameters for launching only TCP or UDP server.
+
 extern crate core;
 
 use crate::repository::Repository;

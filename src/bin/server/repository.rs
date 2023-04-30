@@ -16,8 +16,9 @@ use std::sync::{Arc, Mutex, RwLock};
 
 type MutexedStore = Arc<Mutex<Space<SimpleStore>>>;
 
+/// A repository of tuple spaces which a server has access to.
 pub struct Repository {
-    tuple_spaces: Arc<RwLock<HashMap<String, MutexedStore>>>,
+    tuple_spaces:           Arc<RwLock<HashMap<String, MutexedStore>>>,
     permission_tuple_space: MutexedStore,
 }
 
@@ -38,14 +39,16 @@ impl Repository {
     pub fn new() -> Repository {
         let permission = Arc::new(Mutex::new(Space::new(SimpleStore::new())));
         let new_repository = Repository {
-            tuple_spaces: Arc::new(RwLock::new(HashMap::with_capacity(128))),
+            tuple_spaces:           Arc::new(RwLock::new(HashMap::with_capacity(128))),
             permission_tuple_space: permission.clone(),
         };
-        new_repository
-            .tuple_spaces
-            .write()
-            .unwrap()
-            .insert(String::from(PERMISSION), permission);
+
+        if let Ok(mut write_guard) = new_repository.tuple_spaces.write() {
+            write_guard.insert(String::from(PERMISSION), permission);
+        } else {
+            log::error!("Unable to acquire write access to tuple space repository, lock poisoned!");
+        }
+
         let mut permission_tuple_space = new_repository.permission_tuple_space.lock().unwrap();
         let result = executor::block_on(permission_tuple_space.tuple_out(tuple!(
             E::str(CREATE),
