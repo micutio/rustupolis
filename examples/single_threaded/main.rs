@@ -10,11 +10,13 @@ extern crate rustupolis;
 use rand::{Rng, SeedableRng};
 use rand_isaac::isaac64::Isaac64Rng;
 
-use rustupolis::error::Result;
-use rustupolis::store::{SimpleStore, Store};
+use rustupolis::store::{InsertUndefinedTuple, SimpleStore, Store};
 use rustupolis::tuple::E;
 
-fn put_and_read(rng: &mut Isaac64Rng, t_store: &mut SimpleStore) -> Result<()> {
+fn put_and_read(
+    rng: &mut Isaac64Rng,
+    t_store: &mut SimpleStore,
+) -> std::result::Result<(), InsertUndefinedTuple> {
     for _i in 0..5 {
         println!("pushing tuple");
         let int = rng.gen::<i32>();
@@ -31,7 +33,7 @@ fn put_and_read(rng: &mut Isaac64Rng, t_store: &mut SimpleStore) -> Result<()> {
 
     for _i in 0..5 {
         println!("reading tuple");
-        let tup = t_store.rdp(&tuple![E::Any, E::Any, E::Any, E::Any])?;
+        let tup = t_store.rdp(&tuple![E::Any, E::Any, E::Any, E::Any]);
         println!("{:?}", tup);
     }
 

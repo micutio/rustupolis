@@ -54,6 +54,7 @@ impl Ord for E {
     /// mathematically and logically arbitrary but strongly consistent for the purpose of storage
     /// and retrieval in data structures.
     fn cmp(&self, other: &E) -> Ordering {
+        #[allow(clippy::match_same_arms)]
         match (self, other) {
             (&E::Any, &E::Any) => Ordering::Equal,
             (&E::Any, _) => Ordering::Less,
@@ -61,10 +62,12 @@ impl Ord for E {
             (&E::None, &E::None) => Ordering::Equal,
             (&E::None, _) => Ordering::Greater,
             (_, &E::None) => Ordering::Less,
-            (&E::I(ref a), &E::I(ref b)) => a.cmp(b),
+            (E::I(a), E::I(b)) => {
+                a.cmp(b)
+            },
             (&E::I(_), _) => Ordering::Less,
             (_, &E::I(_)) => Ordering::Greater,
-            (&E::D(ref a), &E::D(ref b)) => {
+            (E::D(a), E::D(b)) => {
                 if a < b {
                     Ordering::Less
                 } else if a > b {
@@ -75,10 +78,10 @@ impl Ord for E {
             }
             (&E::D(_), _) => Ordering::Less,
             (_, &E::D(_)) => Ordering::Greater,
-            (&E::S(ref a), &E::S(ref b)) => a.cmp(b),
+            (E::S(a), E::S(b)) => a.cmp(b),
             (&E::S(_), _) => Ordering::Less,
             (_, &E::S(_)) => Ordering::Greater,
-            (&E::T(ref a), &E::T(ref b)) => a.cmp(b),
+            (E::T(a), E::T(b)) => a.cmp(b),
         }
     }
 }
@@ -105,8 +108,10 @@ impl E {
         E::S(s.into())
     }
 
-    /// Returns false if one or more elements are the wildcard E::Any, recursively.
+    /// Returns false if one or more elements are the wildcard `E::Any`, recursively.
+    #[must_use]
     pub fn is_defined(&self) -> bool {
+        #[allow(clippy::match_same_arms)]
         match self {
             E::I(_) => true,
             E::D(_) => true,
@@ -119,13 +124,15 @@ impl E {
 
     /// Returns true if the other tuple matches this one. Tuples match when elements in each
     /// respective position are equal, or one or both of them in a given position is the wildcard
-    /// E::Any.
+    /// `E::Any`.
+    #[must_use]
     pub fn matches(&self, other: &E) -> bool {
+        #[allow(clippy::match_same_arms)]
         match (self, other) {
-            (&E::I(ref a), &E::I(ref b)) => a == b,
-            (&E::D(ref a), &E::D(ref b)) => a.to_bits() == b.to_bits(),
-            (&E::S(ref a), &E::S(ref b)) => a == b,
-            (&E::T(ref a), &E::T(ref b)) => a.matches(b),
+            (E::I(a), E::I(b)) => a == b,
+            (E::D(a), E::D(b)) => a.to_bits() == b.to_bits(),
+            (E::S(a), E::S(b)) => a == b,
+            (E::T(a), E::T(b)) => a.matches(b),
             (&E::Any, &E::Any) => false,
             (&E::Any, &E::None) => false,
             (&E::Any, _) => true,
@@ -146,7 +153,7 @@ impl Display for Tuple {
             "({})",
             self.0
                 .iter()
-                .map(|x| x.to_string())
+                .map(std::string::ToString::to_string)
                 .collect::<Vec<String>>()
                 .join(",")
         )
@@ -155,37 +162,44 @@ impl Display for Tuple {
 
 impl Tuple {
     /// Creates a new tuple from a given array of elements.
+    #[must_use]
     pub fn new(elements: &[E]) -> Tuple {
         Tuple(elements.to_vec())
     }
 
     /// Creates a new tuple from a given vector of elements.
+    #[must_use]
     pub fn from_vec(v: Vec<E>) -> Tuple {
         Tuple(v)
     }
 
     /// Returns a reference to the first element of the tuple.
+    #[must_use]
     pub fn first(&self) -> &E {
         &self.0[0]
     }
 
     /// Returns a tuple of all but the first element of the original tuple.
+    #[must_use]
     pub fn rest(&self) -> Tuple {
         Tuple::new(&self.0[1..])
     }
 
     /// Returns true if the tuple is empty, false otherwise.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
     /// Returns true if all elements are defined, i.e: none of them are wildcards.
     /// Returns false if the tuple contains any wildcards.
+    #[must_use]
     pub fn is_defined(&self) -> bool {
-        self.0.iter().all(|x| x.is_defined())
+        self.0.iter().all(E::is_defined)
     }
 
     /// Returns true if this tuple matches the other.
+    #[must_use]
     pub fn matches(&self, other: &Tuple) -> bool {
         (self.is_empty() == other.is_empty())
             && self
@@ -196,6 +210,7 @@ impl Tuple {
     }
 
     /// Returns a range over this tuple.
+    #[must_use]
     pub fn range(&self) -> (Bound<Tuple>, Bound<Tuple>) {
         if self.is_defined() {
             (Bound::Included(self.clone()), Bound::Excluded(self.clone()))
@@ -213,7 +228,7 @@ impl Tuple {
                 .iter()
                 .map(|x| match x {
                     &E::Any => E::None,
-                    &E::T(ref t) => E::T(t.terminator()),
+                    E::T(t) => E::T(t.terminator()),
                     e => e.clone(),
                 })
                 .collect::<Vec<E>>(),

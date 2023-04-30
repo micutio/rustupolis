@@ -14,7 +14,7 @@ pub enum Node<T> {
 /// associated with a pending wildcard.
 /// Used by Space for coordination.
 pub struct Tree<T> {
-    arena: Arena<Node<T>>,
+    arena:   Arena<Node<T>>,
     root_id: NodeId,
 }
 
@@ -33,17 +33,21 @@ impl<T> Tree<T> {
 
     /// Public interface for inserting an item into the wildcard tree,
     /// along a tuple 'path'.
+    /// # Errors
+    /// `IndexTreeError` if inserting into the wildcard tree fails
     pub fn insert(&mut self, tup: Tuple, item: T) -> Result<(), Error> {
         debug!("insert {:?}", tup);
         let id = self.root_id;
         self.do_insert(id, tup, item)
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn do_insert(&mut self, id: NodeId, tup: Tuple, item: T) -> Result<(), Error> {
         trace!("do_insert {:?} {:?}", id, tup);
         // If we have an empty tuple, insert the item in a new leaf node of NodeId.
         if tup.is_empty() {
             let child_id = self.arena.new_node(Node::Leaf(Some(item)));
+            // TODO: More expressive error description
             id.append(child_id, &mut self.arena)
                 .chain_err(|| "insert failed")?;
             trace!("do_insert appending {:?} child of {:?}", child_id, id);
@@ -58,15 +62,14 @@ impl<T> Tree<T> {
                 _ => false,
             });
         // Finally continue inserting with the rest of the tuple.
-        match next {
-            Some(id) => self.do_insert(id, tup.rest(), item),
-            None => {
-                let child_id = self.arena.new_node(Node::Path(tup.first().clone()));
-                id.append(child_id, &mut self.arena)
-                    .chain_err(|| "insert failed")?;
-                trace!("do_insert appending {:?} child of {:?}", child_id, id);
-                self.do_insert(child_id, tup.rest(), item)
-            }
+        if let Some(id) = next {
+            self.do_insert(id, tup.rest(), item)
+        } else {
+            let child_id = self.arena.new_node(Node::Path(tup.first().clone()));
+            id.append(child_id, &mut self.arena)
+                .chain_err(|| "insert failed")?;
+            trace!("do_insert appending {:?} child of {:?}", child_id, id);
+            self.do_insert(child_id, tup.rest(), item)
         }
     }
 
@@ -78,16 +81,13 @@ impl<T> Tree<T> {
         self.do_take(id, tup)
     }
 
+    #[allow(clippy::needless_pass_by_value)]
     fn do_take(&mut self, id: NodeId, tup: Tuple) -> Option<T> {
         trace!("take {:?} {:?}", id, tup);
         if tup.is_empty() {
-            let child_id = match id
+            let Some(child_id) = id
                 .children(&self.arena)
-                .find(|child_id| matches!(self.arena[*child_id].data, Node::Leaf(_)))
-            {
-                Some(child_id) => child_id,
-                None => return None,
-            };
+                .find(|child_id| matches!(self.arena[*child_id].data, Node::Leaf(_))) else { return None };
             let result = match self.arena[child_id].data {
                 Node::Leaf(ref mut item) => item.take(),
                 _ => return None,

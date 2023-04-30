@@ -5,6 +5,17 @@
 //! connecting to a remote tuple space server.
 //!
 
+#![warn(clippy::all, clippy::pedantic, clippy::nursery, clippy::cargo)]
+#![allow(
+    clippy::multiple_crate_versions,
+    clippy::similar_names,
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
+    clippy::cast_sign_loss,
+    clippy::use_self
+)]
+
 // TODO list:
 //  - input parsing loop
 //  - processing of parsed commands
@@ -24,7 +35,7 @@ fn main() {
     println!("Rustupolis CLI");
 
     let mut cli = Cli::new(io::stdin(), io::stdout());
-    cli.run()
+    cli.run();
 }
 
 /// Server-side actions required as a consequence of user actions.
@@ -41,13 +52,13 @@ enum RequiredAction {
 /// Future versions are planned to include persistent sessions (file or daemon-based) and complete
 /// support for asynchronous operations.
 struct Cli {
-    stdin: io::Stdin,
-    stdout: io::Stdout,
+    stdin:      io::Stdin,
+    stdout:     io::Stdout,
     tuplespace: Option<Space<SimpleStore>>,
 }
 
 impl Cli {
-    fn new(stdin: io::Stdin, stdout: io::Stdout) -> Cli {
+    const fn new(stdin: io::Stdin, stdout: io::Stdout) -> Cli {
         Cli {
             stdin,
             stdout,
@@ -56,7 +67,6 @@ impl Cli {
     }
 
     fn run(&mut self) {
-        use self::RequiredAction::*;
         let mut input = String::new();
         loop {
             print!("> ");
@@ -69,9 +79,8 @@ impl Cli {
             input.clear();
             // TODO: implement proper actions
             match required_action {
-                CLOSE => break,
-                DETACH => break,
-                NONE => {}
+                RequiredAction::DETACH | RequiredAction::CLOSE => break,
+                RequiredAction::NONE => {}
             }
         }
     }
@@ -83,27 +92,23 @@ impl Cli {
     ///
     /// - `attach` - re-connect to a running tuple space session
     /// - `detach` - close the CLI, but keep the tuple space server running in the background
-    ///
     // TODO: Keep the list updated.
     fn process_input(&mut self, input: &str) -> RequiredAction {
-        use self::RequiredAction::*;
-        println!("user echo: {}", input);
         let tokens: Vec<&str> = input.split_whitespace().collect();
+        println!("user echo: {input}");
         if tokens.is_empty() {
-            return NONE;
+            return RequiredAction::NONE;
         }
-
         let command = tokens.first();
         match command {
             Some(&"create") => self.cmd_create(&tokens[1..]),
             Some(&"close") => self.cmd_close(),
             Some(&"detach") => self.cmd_detach(),
             Some(&"out") => self.cmd_tuple_out(&tokens[1..]),
-            Some(&"read") | Some(&"rd") => self.cmd_tuple_read(&tokens[1..]),
-            Some(&"take") | Some(&"in") => self.cmd_tuple_take(&tokens[1..]),
+            Some(&"read" | &"rd" | &"take" | &"in") => self.cmd_tuple_read(&tokens[1..]),
             _ => {
                 println!("unknown command");
-                NONE
+                RequiredAction::NONE
             }
         }
     }
@@ -114,7 +119,7 @@ impl Cli {
     fn cmd_create(&mut self, parameters: &[&str]) -> RequiredAction {
         println!("creation parameters:");
         for p in parameters {
-            println!("{}", p)
+            println!("{p}");
         }
 
         if self.tuplespace.is_none() {
@@ -126,7 +131,8 @@ impl Cli {
         RequiredAction::NONE
     }
 
-    fn cmd_close(&mut self) -> RequiredAction {
+    #[allow(clippy::missing_const_for_fn, clippy::unused_self)]
+    fn cmd_close(&self) -> RequiredAction {
         RequiredAction::CLOSE
     }
 
@@ -139,70 +145,81 @@ impl Cli {
     }
 
     fn cmd_tuple_out(&mut self, parameters: &[&str]) -> RequiredAction {
-        if let Some(space) = &mut self.tuplespace {
-            let param_list = parameters.join(" ");
-            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
-            for t in tuples {
-                if !t.is_empty() {
-                    if t.is_defined() {
-                        if let Err(e) = executor::block_on(space.tuple_out(t)) {
-                            eprintln!("Cannot push tuple into space! Encountered error {:?}", e);
+        self.tuplespace.as_mut().map_or_else(
+            || {
+                println!("Cannot push tuple into space! There is no tuple space initialised");
+            },
+            |space| {
+                let param_list = parameters.join(" ");
+                let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+                for t in tuples {
+                    if !t.is_empty() {
+                        if t.is_defined() {
+                            if let Err(e) = executor::block_on(space.tuple_out(t)) {
+                                eprintln!("Cannot push tuple into space! Encountered error {e:?}");
+                            } else {
+                                println!("pushed tuple(s) {param_list} into tuple space");
+                            }
                         } else {
-                            println!("pushed tuple(s) {} into tuple space", param_list);
+                            eprintln!(
+                                "Cannot push tuple into space! The given tuple is ill-defined."
+                            );
                         }
-                    } else {
-                        eprintln!("Cannot push tuple into space! The given tuple is ill-defined.");
                     }
                 }
-            }
-        } else {
-            println!("Cannot push tuple into space! There is no tuple space initialised");
-        }
+            },
+        );
         RequiredAction::NONE
     }
 
     fn cmd_tuple_read(&mut self, parameters: &[&str]) -> RequiredAction {
-        if let Some(space) = &mut self.tuplespace {
-            let param_list = parameters.join(" ");
-            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
-            for rd_tup in tuples {
-                if !rd_tup.is_empty() {
-                    println!("reading tuple matching {} from space", rd_tup);
-                    if let Some(match_tup) = executor::block_on(space.tuple_rd(rd_tup)) {
-                        if match_tup.is_empty() {
-                            eprintln!("No matching tuple could be found.");
-                        } else {
-                            println!("found match: {}", match_tup);
+        self.tuplespace.as_mut().map_or_else(
+            || {
+                println!("Cannot read tuple from space! There is no tuple space initialised");
+            },
+            |space| {
+                let param_list = parameters.join(" ");
+                let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+                for rd_tup in tuples {
+                    if !rd_tup.is_empty() {
+                        println!("reading tuple matching {rd_tup} from space");
+                        if let Some(match_tup) = executor::block_on(space.tuple_rd(rd_tup)) {
+                            if match_tup.is_empty() {
+                                eprintln!("No matching tuple could be found.");
+                            } else {
+                                println!("found match: {match_tup}");
+                            }
                         }
                     }
                 }
-            }
-        } else {
-            println!("Cannot read tuple from space! There is no tuple space initialised");
-        }
+            },
+        );
         // TODO: This suffices for our echo test cli. In the future this should return a tuple!
         RequiredAction::NONE
     }
 
-    fn cmd_tuple_take(&mut self, parameters: &[&str]) -> RequiredAction {
-        if let Some(space) = &mut self.tuplespace {
-            let param_list = parameters.join(" ");
-            let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
-            for rd_tup in tuples {
-                if !rd_tup.is_empty() {
-                    println!("pulling in tuple matching {} from space", rd_tup);
-                    if let Some(match_tup) = executor::block_on(space.tuple_in(rd_tup)) {
-                        if match_tup.is_empty() {
-                            eprintln!("No matching tuple could be found.");
-                        } else {
-                            println!("found match: {}", match_tup);
+    fn _cmd_tuple_take(&mut self, parameters: &[&str]) -> RequiredAction {
+        self.tuplespace.as_mut().map_or_else(
+            || {
+                println!("Cannot pull in tuple from space! There is no tuple space initialised");
+            },
+            |space| {
+                let param_list = parameters.join(" ");
+                let tuples: Vec<Tuple> = Lexer::new(&param_list).collect();
+                for rd_tup in tuples {
+                    if !rd_tup.is_empty() {
+                        println!("pulling in tuple matching {rd_tup} from space");
+                        if let Some(match_tup) = executor::block_on(space.tuple_in(rd_tup)) {
+                            if match_tup.is_empty() {
+                                eprintln!("No matching tuple could be found.");
+                            } else {
+                                println!("found match: {match_tup}");
+                            }
                         }
                     }
                 }
-            }
-        } else {
-            println!("Cannot pull in tuple from space! There is no tuple space initialised");
-        }
+            },
+        );
         // TODO: This suffices for our echo test cli. In the future this should return a tuple!
         RequiredAction::NONE
     }

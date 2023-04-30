@@ -107,12 +107,12 @@ fn next(current: &mut Token) -> Token {
 }
 
 /// Returns `true` if the connection is done.
-fn handle_connection_event<'a>(
+fn handle_connection_event(
     registry: &Registry,
     connection: &mut TcpStream,
     event: &Event,
     clients: &mut HashMap<Token, Client>,
-    repository: &'a Repository,
+    repository: &Repository,
 ) -> io::Result<bool> {
     if event.is_writable() {
         match connection.write(CONNECTED.as_ref()) {
