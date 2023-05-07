@@ -2,6 +2,7 @@ use crate::client::Client;
 use crate::constant::{OK, TUPLE_SPACE_ATTACHED, TUPLE_SPACE_ATTACHED_UPDATED};
 use crate::repository::RequestResponse;
 use crate::Repository;
+
 use log::warn;
 use mio::net::UdpSocket;
 use mio::{Events, Interest, Poll, Token};
@@ -11,44 +12,41 @@ use std::net::SocketAddr;
 use std::str::from_utf8;
 
 // A token to allow us to identify which event is for the `UdpSocket`.
-const UDP_SOCKET: Token = Token(0);
+const UDP_TOKEN: Token = Token(0);
 
 #[cfg(not(target_os = "wasi"))]
 pub(crate) fn launch_server(
-    ip_address: &String,
-    port: &String,
+    ip_address: &str,
+    port: &str,
     repository: &Repository,
-) -> io::Result<()> {
-    let mut poll = Poll::new()?;
-    let mut events = Events::with_capacity(126);
-
-    let address = format!("{}:{}", ip_address, port);
-
+) -> anyhow::Result<()> {
     // Setup the UDP server socket.
+    let address = format!("{}:{}", ip_address, port);
     let addr = address.parse().unwrap();
     let mut socket = UdpSocket::bind(addr)?;
-    let mut client_list: HashMap<SocketAddr, Client> = HashMap::new();
 
-    // Register our socket with the token defined above and an interest in being
-    // `READABLE`.
+    // Create a poll instance.
+    let mut poll = Poll::new()?;
     poll.registry()
-        .register(&mut socket, UDP_SOCKET, Interest::READABLE)?;
+        .register(&mut socket, UDP_TOKEN, Interest::READABLE)?;
+
+    let mut events = Events::with_capacity(126);
+    let mut client_list: HashMap<SocketAddr, Client> = HashMap::new();
+    let mut buf = [0; 1 << 16];
 
     println!("You can connect to the UDP server using `ncat`:");
     println!("ncat -u {} {}", ip_address, port);
 
-    let mut buf = [0; 1 << 16];
-
     loop {
-        // Poll to check if we have events waiting for us.
+        // poll to check for new events
         poll.poll(&mut events, None)?;
 
-        // Process each event.
+        // process each event
         for event in events.iter() {
             // Validate the token we registered our socket with, in this example it will only ever
             // be one but we make sure it's valid nonetheless.
             match event.token() {
-                UDP_SOCKET => loop {
+                UDP_TOKEN => loop {
                     match socket.recv_from(&mut buf) {
                         Ok((packet_size, source_address)) => {
                             if let Ok(str_buf) = from_utf8(&buf[..packet_size]) {
@@ -106,7 +104,7 @@ pub(crate) fn launch_server(
                         Err(e) => {
                             // If it was any other kind of error, something went
                             // wrong and we terminate with an error.
-                            return Err(e);
+                            return Err(anyhow::format_err!(e));
                         }
                     }
                 },

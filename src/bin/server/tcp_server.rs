@@ -1,6 +1,7 @@
 use crate::client::Client;
 use crate::repository::RequestResponse;
 use crate::Repository;
+
 use mio::event::Event;
 use mio::net::{TcpListener, TcpStream};
 use mio::{Events, Interest, Poll, Registry, Token};
@@ -12,33 +13,27 @@ use std::io::{Read, Write};
 use std::str::from_utf8;
 
 // Setup some tokens to allow us to identify which event is for which socket.
-const SERVER: Token = Token(0);
+const TCP_TOKEN: Token = Token(0);
 
 #[cfg(not(target_os = "wasi"))]
-pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> std::io::Result<()> {
-    let address = format!("{}:{}", ip_address, port);
-
+pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> anyhow::Result<()> {
     // Setup the TCP server socket.
-    let addr = address.parse().unwrap();
+    let address = format!("{}:{}", ip_address, port);
+    let addr = address.parse()?;
+    let mut socket = TcpListener::bind(addr)?;
 
     // Create a poll instance.
     let mut poll = Poll::new()?;
-
-    // Create storage for events.
-    let mut events = Events::with_capacity(128);
-
-    let mut server = TcpListener::bind(addr)?;
-
-    // Register the server with poll so we can receive events for it.
     poll.registry()
-        .register(&mut server, SERVER, Interest::READABLE)?;
+        .register(&mut socket, TCP_TOKEN, Interest::READABLE)?;
 
+    // Create storage for events, clients and connection.
+    let mut events = Events::with_capacity(128);
     let mut clients: HashMap<Token, Client> = HashMap::new();
+    let mut connections: HashMap<Token, TcpStream> = HashMap::new();
 
-    // Map of `Token` -> `TcpStream`.
-    let mut connections = HashMap::new();
     // Unique token for each incoming connection.
-    let mut unique_token = Token(SERVER.0 + 1);
+    let mut unique_token = Token(TCP_TOKEN.0 + 1);
 
     println!("You can connect to the TCP server using `ncat`:");
     println!("ncat {} {}", ip_address, port);
@@ -48,10 +43,10 @@ pub fn launch_server(ip_address: &str, port: &str, repository: &Repository) -> s
 
         for event in events.iter() {
             match event.token() {
-                SERVER => loop {
+                TCP_TOKEN => loop {
                     // Received an event for the TCP server socket, which indicates we can accept a
                     // connection.
-                    let (mut connection, address) = match server.accept() {
+                    let (mut connection, address) = match socket.accept() {
                         Ok((connection, address)) => (connection, address),
                         Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
                             // If we get a `WouldBlock` error we know our listener has no more
