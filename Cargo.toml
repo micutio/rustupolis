@@ -45,7 +45,7 @@ rand = "0.8"
 rand_isaac = "0.3"
 mio = { version = "0.8", features = ["net", "os-poll"], optional = true }
 crossbeam = { version = "0.8", optional = true }
-anyhow = { version = "1.0.71", features = ["backtrace"] }
+anyhow = { version = "1.0.102", features = ["backtrace"] }
 
 [features]
 cli = []
