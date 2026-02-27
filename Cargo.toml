@@ -41,7 +41,7 @@ futures = { version = "0.3" }
 indextree-ng = "1.0"
 log = "0.4"
 pretty_env_logger = "0.5"
-rand = "0.8"
+rand = "0.10"
 rand_isaac = "0.3"
 mio = { version = "1.1", features = ["net", "os-poll"], optional = true }
 crossbeam = { version = "0.8", optional = true }
