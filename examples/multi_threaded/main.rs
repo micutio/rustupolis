@@ -10,7 +10,7 @@ extern crate rustupolis;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use rand::{Rng, SeedableRng};
+use rand::{RngExt, SeedableRng};
 use rand_isaac::isaac64::Isaac64Rng;
 
 use rustupolis::store::{InsertUndefinedTuple, SimpleStore, Store};
@@ -26,8 +26,8 @@ fn put_and_read(
         println!("{0} pushing tuple", id);
         let mut strg = "tuple from ".to_string();
         strg.push_str(id);
-        let int = rng.gen::<i32>();
-        let dbl = rng.gen::<f64>();
+        let int = rng.random();
+        let dbl = rng.random::<f64>();
         let tup = tuple![
             E::S(strg),
             E::I(int),
