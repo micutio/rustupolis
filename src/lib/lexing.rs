@@ -62,7 +62,7 @@ impl<'a> Iterator for Lexer<'a> {
 
 impl<'a> Lexer<'a> {
     #[must_use]
-    pub const fn new(buffer: &str) -> Lexer {
+    pub const fn new(buffer: &str) -> Lexer<'_> {
         Lexer {
             buf: buffer,
             pos: 0,
