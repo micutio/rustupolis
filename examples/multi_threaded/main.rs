@@ -2,7 +2,6 @@
 //! space. It is done multi-threaded to show the thread-safety of the tuple space.
 
 extern crate rand;
-extern crate rand_isaac;
 
 #[macro_use]
 extern crate rustupolis;
@@ -10,14 +9,13 @@ extern crate rustupolis;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use rand::{RngExt, SeedableRng};
-use rand_isaac::isaac64::Isaac64Rng;
+use rand::{rngs::StdRng, RngExt, SeedableRng};
 
 use rustupolis::store::{InsertUndefinedTuple, SimpleStore, Store};
 use rustupolis::tuple::E;
 
 fn put_and_read(
-    rng: &mut rand_isaac::isaac64::Isaac64Rng,
+    rng: &mut StdRng,
     id: &str,
     t_store: std::sync::Arc<std::sync::Mutex<rustupolis::store::SimpleStore>>,
 ) -> std::result::Result<(), InsertUndefinedTuple> {
@@ -52,8 +50,8 @@ fn main() {
         1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6,
         7, 8,
     ];
-    let mut rng1 = Isaac64Rng::from_seed(seed);
-    let mut rng2 = Isaac64Rng::from_seed(seed);
+    let mut rng1 = StdRng::from_seed(seed);
+    let mut rng2 = StdRng::from_seed(seed);
 
     // rng.reseed(seed);
 

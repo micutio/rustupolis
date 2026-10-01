@@ -2,25 +2,23 @@
 //! space.
 
 extern crate rand;
-extern crate rand_isaac;
 
 #[macro_use]
 extern crate rustupolis;
 
-use rand::{Rng, SeedableRng};
-use rand_isaac::isaac64::Isaac64Rng;
+use rand::{rngs::StdRng, RngExt, SeedableRng};
 
 use rustupolis::store::{InsertUndefinedTuple, SimpleStore, Store};
 use rustupolis::tuple::E;
 
 fn put_and_read(
-    rng: &mut Isaac64Rng,
+    rng: &mut StdRng,
     t_store: &mut SimpleStore,
 ) -> std::result::Result<(), InsertUndefinedTuple> {
     for _i in 0..5 {
         println!("pushing tuple");
-        let int = rng.gen::<i32>();
-        let dbl = rng.gen::<f64>();
+        let int = rng.random::<i32>();
+        let dbl = rng.random::<f64>();
         let tup = tuple![
             E::S("tuple".to_string()),
             E::I(int),
@@ -45,7 +43,7 @@ fn main() {
         1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6,
         7, 8,
     ];
-    let mut rng = Isaac64Rng::from_seed(seed);
+    let mut rng = StdRng::from_seed(seed);
 
     println!("rustupolis - single threaded example");
     let mut t_store = SimpleStore::new();
